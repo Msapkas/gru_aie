@@ -1,0 +1,14 @@
+[
+  {
+    "directory": "/home/sapkas/GRU/gru_aie/_ide/_build",
+    "arguments": [
+      "/tools/Xilinx/Vitis/2024.1/aietools/tps/lnx64/gcc/bin/g++",
+      "-c",
+      "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
+      "-I/home/sapkas/GRU/gru_aie",
+      "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
+      "/home/sapkas/GRU/gru_aie/GRU.cc"
+    ],
+    "file": "/home/sapkas/GRU/gru_aie/GRU.cc"
+  }
+]
