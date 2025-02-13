@@ -3,13 +3,13 @@
 
 #include <adf.h>
 
-template<int vector_size, int h_vector_size>
+template<int x_vector_size, int h_vector_size>
 void matrix_vec_mult(v8float* matrix,
 					 v8float* vector,
 				 	 v8float* result);
 
 
-template<int vector_size, int h_vector_size>
+template<int x_vector_size, int h_vector_size>
 void matrix_vec_mult(v8float* matrix,
 					 v8float* vector,
 					 v8float* result) {
@@ -18,7 +18,7 @@ void matrix_vec_mult(v8float* matrix,
 		result[i] = null_v8float();
 
 	// Cycle over input vectors
-	for (int inp_vec = 0; inp_vec < vector_size; inp_vec++)
+	for (int inp_vec = 0; inp_vec < x_vector_size; inp_vec++)
 		// Cycle over input vector elements
 		for (int inp_elem = 0; inp_elem < 8; inp_elem++)
 			// Cycle over output buffer

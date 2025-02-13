@@ -5,7 +5,7 @@
   "configuration": {
     "componentType": "AI_ENGINE",
     "aieGraphFiles": [
-      "GRU.cc"
+      "test_graph.cc"
     ],
     "aieCompilerConfigurations": [],
     "configFiles": [

@@ -52,7 +52,7 @@ ${Vitis_AIE_COMPILER}
 # to suite your requirement. They will not be modifiedfurther by the tool.
 # Below variables will be auto-updated based on the binary container.
 set(_AIE_GRAPH_FILES
-GRU.cc
+distr_mat_vec_mul_graph.cc
 )
 
 set(_AIE_OUT_DIR
