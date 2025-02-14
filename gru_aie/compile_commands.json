@@ -8,8 +8,21 @@
       "-I/home/sapkas/GRU/gru_aie",
       "-I/home/sapkas/GRU/gru_aie/mat_vec_mul",
       "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
-      "/home/sapkas/GRU/gru_aie/mat_vec_mul/mat_hidden_vec_mul.cc"
+      "/home/sapkas/GRU/gru_aie/gru_atom.cc"
     ],
-    "file": "/home/sapkas/GRU/gru_aie/mat_vec_mul/mat_hidden_vec_mul.cc"
+    "file": "/home/sapkas/GRU/gru_aie/gru_atom.cc"
+  },
+  {
+    "directory": "/home/sapkas/GRU/gru_aie/_ide/_build",
+    "arguments": [
+      "/tools/Xilinx/Vitis/2024.1/aietools/tps/lnx64/gcc/bin/g++",
+      "-c",
+      "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
+      "-I/home/sapkas/GRU/gru_aie",
+      "-I/home/sapkas/GRU/gru_aie/mat_vec_mul",
+      "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
+      "/home/sapkas/GRU/gru_aie/mat_vec_mul/mat_input_vec_mul.cc"
+    ],
+    "file": "/home/sapkas/GRU/gru_aie/mat_vec_mul/mat_input_vec_mul.cc"
   }
 ]

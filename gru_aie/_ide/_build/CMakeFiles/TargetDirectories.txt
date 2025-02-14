@@ -1,3 +1,0 @@
-/home/sapkas/GRU/gru_aie/_ide/_build/CMakeFiles/gru_aie_libadf.a.dir
-/home/sapkas/GRU/gru_aie/_ide/_build/CMakeFiles/edit_cache.dir
-/home/sapkas/GRU/gru_aie/_ide/_build/CMakeFiles/rebuild_cache.dir

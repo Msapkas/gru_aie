@@ -21,8 +21,9 @@ void mat_hidden_vec_mul(adf::input_circular_buffer           <float,adf::extents
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
                 hidden[i] = aie::load_v<8>((float*)&weights[i*H_VECTOR_SIZE + VECTOR_LANES*j]);
                 }
+                first_iteration_flag = false;
         } else {
-            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){ 
+            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
                 hidden[i] = *pin++;
                 }
         }
