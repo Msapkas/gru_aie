@@ -14,7 +14,7 @@ void sigmoid_reduce(adf::input_circular_buffer<float,adf::extents<H_VECTOR_SIZE*
     auto h_pin = aie::begin_vector_circular<VECTOR_LANES>(h_in);
 
     float res[MULT_DIST_COEFF];
-    float gate_result[MULT_DIST_COEFF]; 
+    float gate_result[MULT_DIST_COEFF];
 
     for(;;){
         for (int i = 0; i < MULT_DIST_COEFF; i++){
@@ -24,7 +24,13 @@ void sigmoid_reduce(adf::input_circular_buffer<float,adf::extents<H_VECTOR_SIZE*
         }
         
         for (int i = 0; i < MULT_DIST_COEFF; i++)chess_unroll_loop(*){
-        gate_result[i] = sigm[res[i]];
+            if (res[i] < -SIGMOID_THR){
+                gate_result[i] = 0;
+            } else if (res[i] > SIGMOID_THR){
+                gate_result[i] = 1;
+            } else {
+                gate_result[i] = sigm[res[i]];
+            }
         }
     }
 }

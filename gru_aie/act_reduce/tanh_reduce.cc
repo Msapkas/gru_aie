@@ -24,7 +24,13 @@ void tanh_reduce(adf::input_circular_buffer<float,adf::extents<H_VECTOR_SIZE*VEC
         }
         
         for (int i = 0; i < MULT_DIST_COEFF; i++)chess_unroll_loop(*){
-            gate_result[i] = tanh[res[i]];
+            if (res[i] < -TANH_THR){
+                gate_result[i] = -1;
+            } else if (res[i] > TANH_THR){
+                gate_result[i] = 1;
+            } else {
+                gate_result[i] = tanh[res[i]];
+            }
         }
     }
 }
