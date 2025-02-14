@@ -6,9 +6,10 @@
       "-c",
       "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
       "-I/home/sapkas/GRU/gru_aie",
+      "-I/home/sapkas/GRU/gru_aie/mat_vec_mul",
       "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
-      "/home/sapkas/GRU/gru_aie/GRU.cc"
+      "/home/sapkas/GRU/gru_aie/mat_vec_mul/mat_hidden_vec_mul.cc"
     ],
-    "file": "/home/sapkas/GRU/gru_aie/GRU.cc"
+    "file": "/home/sapkas/GRU/gru_aie/mat_vec_mul/mat_hidden_vec_mul.cc"
   }
 ]

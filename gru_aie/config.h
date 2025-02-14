@@ -1,9 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-constexpr int VECTOR_SIZE = 8;
-constexpr int X_SIZE = 64;
-constexpr int DIST_COEFF = 2;
-constexpr int H_SIZE = 4;
+constexpr int VECTOR_LANES = 8;
+constexpr int X_VECTOR_SIZE = 64;
+constexpr int MULT_DIST_COEFF = 1;
+constexpr int H_VECTOR_SIZE = 64;
+constexpr int ADD_DIST_COEFF = 1;
 
 #endif

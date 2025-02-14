@@ -27,7 +27,7 @@
 				"enablePipelineView": false,
 				"packageDirectory": "./Work",
 				"inputDirectory": "../..",
-				"additionalArgs": "--simulation-cycle-timeout=10000",
+				"additionalArgs": "--simulation-cycle-timeout=50000",
 				"trace": {
 					"enableTrace": true,
 					"traceType": "onlineWdb",
@@ -49,7 +49,7 @@
 					}
 				},
 				"profile": {
-					"enableProfiling": true,
+					"enableProfiling": false,
 					"profileAllCores": true,
 					"cores": ""
 				}

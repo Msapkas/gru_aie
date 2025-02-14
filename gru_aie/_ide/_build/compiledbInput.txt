@@ -1,0 +1,10 @@
+/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/bin/cmake -S/home/sapkas/GRU/gru_aie -B/home/sapkas/GRU/gru_aie/_ide/_build --check-build-system CMakeFiles/Makefile.cmake 0
+/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/bin/cmake -E cmake_progress_start /home/sapkas/GRU/gru_aie/_ide/_build/CMakeFiles /home/sapkas/GRU/gru_aie/_ide/_build//CMakeFiles/progress.marks
+make -s -f CMakeFiles/Makefile2 all
+make -s -f CMakeFiles/gru_aie_libadf.a.dir/build.make CMakeFiles/gru_aie_libadf.a.dir/depend
+cd /home/sapkas/GRU/gru_aie/_ide/_build && /tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/bin/cmake -E cmake_depends "Unix Makefiles" /home/sapkas/GRU/gru_aie /home/sapkas/GRU/gru_aie /home/sapkas/GRU/gru_aie/_ide/_build /home/sapkas/GRU/gru_aie/_ide/_build /home/sapkas/GRU/gru_aie/_ide/_build/CMakeFiles/gru_aie_libadf.a.dir/DependInfo.cmake --color=
+make -s -f CMakeFiles/gru_aie_libadf.a.dir/build.make CMakeFiles/gru_aie_libadf.a.dir/build
+/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/bin/cmake -E cmake_echo_color --switch= --blue --bold --progress-dir=/home/sapkas/GRU/gru_aie/_ide/_build/CMakeFiles --progress-num=1 "Generating libadf.a"
+unset MAKEFLAGS&&/tools/Xilinx/Vitis/2024.1/aietools/tps/lnx64/gcc/bin/g++  -c --mode aie --target x86sim --config /home/sapkas/GRU/gru_aie/aiecompiler.cfg --platform /tools/Xilinx/Vitis/2024.1/base_platforms/xilinx_vck190_base_dfx_202410_1/xilinx_vck190_base_dfx_202410_1.xpfm --work_dir /home/sapkas/GRU/gru_aie/_ide/_build/./Work /home/sapkas/GRU/gru_aie/basic_gate.cc
+/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/bin/cmake -E cmake_echo_color --switch= --progress-dir=/home/sapkas/GRU/gru_aie/_ide/_build/CMakeFiles --progress-num=1 "Built target gru_aie_libadf.a"
+/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/bin/cmake -E cmake_progress_start /home/sapkas/GRU/gru_aie/_ide/_build/CMakeFiles 0
