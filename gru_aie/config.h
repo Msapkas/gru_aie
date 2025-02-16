@@ -4,7 +4,7 @@
 constexpr int VECTOR_LANES = 8;
 
 constexpr int X_VECTOR_SIZE = 16;
-constexpr int H_VECTOR_SIZE = 64;
+constexpr int H_VECTOR_SIZE = 16;
 
 constexpr int DIST_COEFF = 1;
 

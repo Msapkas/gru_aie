@@ -2,7 +2,7 @@
 #include <aie_api/aie_adf.hpp>
 #include <aie_api/utils.hpp>
 #include "new_hidden_state.h"
-#include "./config.h"
+#include "config.h"
 
 void new_hidden_state(  adf::input_circular_buffer        <float,adf::extents<DIST_COEFF>> & __restrict cand_hid_state_in,
                         adf::input_circular_buffer        <float,adf::extents<DIST_COEFF>> & __restrict z_in,

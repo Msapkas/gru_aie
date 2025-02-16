@@ -1,6 +1,6 @@
 #ifndef MAT_INPUT_VEC_MUL_H
 #define MAT_INPUT_VEC_MUL_H
-#include "./config.h"
+#include "../config.h"
 
 // template<int VECTOR_SIZE, int VECTOR_LANES, int MULT_DIST_COEFF> 
 void mat_input_vec_mul(     adf::input_circular_buffer           <float,adf::extents<X_VECTOR_SIZE>>            & __restrict in,

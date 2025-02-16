@@ -2,7 +2,7 @@
 #include <aie_api/aie_adf.hpp>
 #include <aie_api/utils.hpp>
 #include "mat_input_vec_mul.h"
-#include "./config.h"
+#include "../config.h"
 
 // template<int VECTOR_SIZE, int VECTOR_LANES, int MULT_DIST_COEFF> 
 void mat_input_vec_mul(     adf::input_circular_buffer           <float,adf::extents<X_VECTOR_SIZE>>              & __restrict in,
@@ -20,7 +20,7 @@ void mat_input_vec_mul(     adf::input_circular_buffer           <float,adf::ext
         for (int i = 0; i < X_VECTOR_SIZE/VECTOR_LANES; i++){ x_input[i] = *pin++;}
 
         for (int i = 0; i < DIST_COEFF; i++)
-        {   accum.from_vector(aie::zeros<float, 8>());
+        {   accum.from_vector(aie::zeros<float, 8>()); // chatgpt suggests: accum = aie::accum<accfloat, 8>(0);
             for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES; j++)
                 {
                 accum = aie::mac(accum, x_input[j], aie::load_v<8>((float*)&weights[i*X_VECTOR_SIZE + VECTOR_LANES*j]));
