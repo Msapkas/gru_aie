@@ -2,12 +2,12 @@
 #define Z_GATE_H
 
 #include <adf.h>
-#include "./mat_vec_mul/mat_input_vec_mul.h"
-#include "./mat_vec_mul/mat_hidden_vec_mul.h"
-#include "./act_reduce/sigmoid_reduce.h"
-#include "config.h"
+#include "../mat_vec_mul/mat_input_vec_mul.h"
+#include "../mat_vec_mul/mat_hidden_vec_mul.h"
+#include "../act_reduce/sigmoid_reduce.h"
+#include "../config.h"
 
-class gru_atom: public adf::graph {
+class z_gate: public adf::graph {
 public:
     // Input
     adf::port<adf::input> x_input;
@@ -45,13 +45,13 @@ public:
     adf::runtime<ratio>(Uz_h) = 1;
 
     adf::connect<>(hidden_input, Uz_h.in[0]);
-    adf::connect<adf::parameter>(Ur, adf::async(Uz_h.in[1]));
+    adf::connect<adf::parameter>(Uz, adf::async(Uz_h.in[1]));
     adf::connect<adf::parameter>(hidden_init, adf::async(Uz_h.in[2]));
 
     // Reduce_add and apply sigmoid LUT
     z_sigm_reduce = adf::kernel::create(sigmoid_reduce);
-    adf::source(r_sigm_reduce) = "act_reduce/sigmoid_reduce.cc";
-    adf::runtime<ratio>(r_sigm_reduce) = 1;
+    adf::source(z_sigm_reduce) = "act_reduce/sigmoid_reduce.cc";
+    adf::runtime<ratio>(z_sigm_reduce) = 1;
 
     adf::connect<>(Wz_x.out[0], z_sigm_reduce.in[0]);
     adf::connect<>(Uz_h.out[0], z_sigm_reduce.in[1]);
