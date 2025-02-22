@@ -6,7 +6,7 @@
 #include "../config.h"
 
 void aggregator_kernel( input_pktstream *in,
-                        output_stream<float> *out
+                        output_buffer<float> *out
 ){ 
     float z_result[H_VECTOR_SIZE];
     for (int i = 0; i < H_VECTOR_SIZE; i+=DIST_COEFF){

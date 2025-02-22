@@ -4,6 +4,8 @@
 #include <adf.h>
 #include "../gate_graphs/r_gate.h"
 #include "../gate_graphs/z_gate.h"
+// #include "../gate_graphs/candidate_hidden_state.h"
+#include "../new_hidden_state_kernel/new_hidden_state.h"
 #include "../config.h"
 
 class gru : public adf::graph {
@@ -30,7 +32,16 @@ class gru : public adf::graph {
     adf::port<adf::input> Uz_params[H_VECTOR_SIZE/DIST_COEFF];
     adf::port<adf::input> bz_params[H_VECTOR_SIZE/DIST_COEFF];
 
-    adf::pktmerge<H_VECTOR_SIZE/DIST_COEFF> z_aggregator;    
+    adf::pktmerge<H_VECTOR_SIZE/DIST_COEFF> z_aggregator;
+
+    // // Cand Hidden state Gate decs
+    // candidate_hidden_gate candidate_hidden_gates[H_VECTOR_SIZE/DIST_COEFF];
+    // adf::port<adf::input> Wh_params[H_VECTOR_SIZE/DIST_COEFF];
+    // adf::port<adf::input> Uh_params[H_VECTOR_SIZE/DIST_COEFF];
+    // adf::port<adf::input> bh_params[H_VECTOR_SIZE/DIST_COEFF];
+
+    // // New hidden state Gate
+    // adf::kernel new_h_gate;
 
     gru () {
 
@@ -52,7 +63,7 @@ class gru : public adf::graph {
 
             adf::connect<adf::parameter> (Wr_params[i], adf::async(r_gates[i].Wr));
             adf::connect<adf::parameter> (Ur_params[i], adf::async(r_gates[i].Ur));
-            adf::connect<adf::parameter> (br_params[i], adf::async(r_gates[i].br));
+            adf::connect<adf::parameter> (br_params[i], r_gates[i].br);
             adf::connect<adf::pktstream> (r_gates[i].r_output, r_aggregator.in[i]);
 
             // Z gate connections
@@ -63,8 +74,11 @@ class gru : public adf::graph {
 
             adf::connect<adf::parameter> (Wz_params[i], adf::async(z_gates[i].Wz));
             adf::connect<adf::parameter> (Uz_params[i], adf::async(z_gates[i].Uz));
-            adf::connect<adf::parameter> (bz_params[i], adf::async(z_gates[i].bz));
+            adf::connect<adf::parameter> (bz_params[i], z_gates[i].bz);
             adf::connect<adf::pktstream> (z_gates[i].z_output, z_aggregator.in[i]);
+
+            // New Hidden state connections
+            
 
         }
 

@@ -16,7 +16,7 @@ int main(int argc, char ** argv){
     for (int i = 0; i < H_VECTOR_SIZE; i++){h_init_test_params[i] = i;}
     for (int i = 0; i < DIST_COEFF*X_VECTOR_SIZE; i++){W_test_params[i] = i;}
     for (int i = 0; i < DIST_COEFF*H_VECTOR_SIZE; i++){U_test_params[i] = i;}
-    for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = i;}
+    for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = 10;}
 
     gru_graph.init();
 
