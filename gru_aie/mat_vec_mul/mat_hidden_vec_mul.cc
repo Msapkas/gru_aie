@@ -4,12 +4,12 @@
 #include "mat_hidden_vec_mul.h"
 #include "../config.h"
 
-void mat_hidden_vec_mul(adf::input_circular_buffer           <float,adf::extents<H_VECTOR_SIZE>>              & __restrict in,
-                        adf::output_async_circular_buffer    <float,adf::extents<DIST_COEFF*VECTOR_LANES>>    & __restrict out,
+void mat_hidden_vec_mul(input_stream<float> * __restrict in,
+                        adf::output_async_circular_buffer <float,adf::extents<DIST_COEFF*VECTOR_LANES>> & __restrict out,
                         const float (&weights)[H_VECTOR_SIZE*DIST_COEFF],
                         const float (&h_init)[H_VECTOR_SIZE]
 
-){  auto pin = aie::begin_vector_circular<VECTOR_LANES>(in);
+){  
     auto pout = aie::begin_vector_circular<VECTOR_LANES>(out);
 
     bool first_iteration_flag = true;
@@ -24,7 +24,7 @@ void mat_hidden_vec_mul(adf::input_circular_buffer           <float,adf::extents
                 first_iteration_flag = false;
         } else {
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
-                hidden[i] = *pin++;
+                hidden[i] = readincr_v<8>(in);
                 }
         }
 
@@ -36,7 +36,6 @@ void mat_hidden_vec_mul(adf::input_circular_buffer           <float,adf::extents
                 accum = aie::mac(accum, hidden[j], aie::load_v<8>((float*)&weights[i*H_VECTOR_SIZE + VECTOR_LANES*j]));
             }
 
-            // Acquire lock and output
             out.acquire();
             *pout++ = accum;
             out.release();

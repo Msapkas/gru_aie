@@ -58,7 +58,7 @@ public:
     adf::connect<adf::parameter>(br, r_sigm_reduce.in[2]);
 
     // R Gate Elements Output
-    adf::connect<>(r_sigm_reduce.out[0], r_output);
+    adf::connect<adf::pktstream>(r_sigm_reduce.out[0], r_output);
     // ----------------------------------------------------------------------
 
     }
