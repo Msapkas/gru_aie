@@ -13,18 +13,20 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
     auto pout = aie::begin_vector_circular<VECTOR_LANES>(out);
 
     alignas(32) aie::accum<accfloat, 8> accum;
-    alignas(32) aie::vector<float, 8> x_input[X_VECTOR_SIZE/VECTOR_LANES];
+    alignas(32) float x_input[X_VECTOR_SIZE];
 
     for (;;){
 
         // Read the input and keep it
-        for (int i = 0; i < X_VECTOR_SIZE/VECTOR_LANES; i++){ x_input[i] = readincr_v<8>(in);}
+        for (int i = 0; i < X_VECTOR_SIZE; i++){ x_input[i] = readincr(in);}
 
         for (int i = 0; i < DIST_COEFF; i++)
         {   accum.from_vector(aie::zeros<float, 8>());
             for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES; j++)
                 {
-                accum = aie::mac(accum, x_input[j], aie::load_v<8>((float*)&weights[i*X_VECTOR_SIZE + VECTOR_LANES*j]));
+                accum = aie::mac(accum, 
+                                aie::load_v<8>((float*)&x_input[j]),
+                                aie::load_v<8>((float*)&weights[i*X_VECTOR_SIZE + VECTOR_LANES*j]));
             }
 
         out.acquire();

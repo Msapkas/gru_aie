@@ -13,10 +13,10 @@ int main(int argc, char ** argv){
     std::array<float,DIST_COEFF*H_VECTOR_SIZE> U_test_params;
     std::array<float,DIST_COEFF> b_test_params;
 
-    for (int i = 0; i < H_VECTOR_SIZE; i++){h_init_test_params[i] = i;}
-    for (int i = 0; i < DIST_COEFF*X_VECTOR_SIZE; i++){W_test_params[i] = i;}
-    for (int i = 0; i < DIST_COEFF*H_VECTOR_SIZE; i++){U_test_params[i] = i;}
-    for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = 1;}
+    for (int i = 0; i < H_VECTOR_SIZE; i++){h_init_test_params[i] = 0.1*i;}
+    for (int i = 0; i < DIST_COEFF*X_VECTOR_SIZE; i++){W_test_params[i] = 0.1*i;}
+    for (int i = 0; i < DIST_COEFF*H_VECTOR_SIZE; i++){U_test_params[i] = 0.1*i;}
+    for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = 0.01*i;}
 
     gru_graph.init();
     gru_graph.run(1);
@@ -29,11 +29,19 @@ int main(int argc, char ** argv){
         gru_graph.update(gru_graph.Ur_params[i], U_test_params.data(), DIST_COEFF*H_VECTOR_SIZE);
         gru_graph.update(gru_graph.br_params[i], b_test_params.data(), DIST_COEFF);
 
-        // gru_graph.update(gru_graph.z_hidden_initialization[i], h_init_test_params.data(), H_VECTOR_SIZE);
-        // gru_graph.update(gru_graph.Wz_params[i], W_test_params.data(), DIST_COEFF*X_VECTOR_SIZE);
-        // gru_graph.update(gru_graph.Uz_params[i], U_test_params.data(), DIST_COEFF*H_VECTOR_SIZE);
-        // gru_graph.update(gru_graph.bz_params[i], b_test_params.data(), DIST_COEFF);
-        
+        // gru_graph.update(gru_graph.r_aggregator_hidden_initialization, h_init_test_params.data(), H_VECTOR_SIZE);
+
+        gru_graph.update(gru_graph.z_hidden_initialization[i], h_init_test_params.data(), H_VECTOR_SIZE);
+        gru_graph.update(gru_graph.Wz_params[i], W_test_params.data(), DIST_COEFF*X_VECTOR_SIZE);
+        gru_graph.update(gru_graph.Uz_params[i], U_test_params.data(), DIST_COEFF*H_VECTOR_SIZE);
+        gru_graph.update(gru_graph.bz_params[i], b_test_params.data(), DIST_COEFF);
+
+        gru_graph.update(gru_graph.chsg_hidden_initialization[i], h_init_test_params.data(), H_VECTOR_SIZE);
+        gru_graph.update(gru_graph.Wh_params[i], W_test_params.data(), DIST_COEFF*X_VECTOR_SIZE);
+        gru_graph.update(gru_graph.Uh_params[i], U_test_params.data(), DIST_COEFF*H_VECTOR_SIZE);
+        gru_graph.update(gru_graph.bh_params[i], b_test_params.data(), DIST_COEFF);
+
+        gru_graph.update(gru_graph.new_hidden_state_gate_hidden_initialization, h_init_test_params.data(), H_VECTOR_SIZE);
     }
     
     gru_graph.end();
