@@ -5,17 +5,14 @@
 #include "act_funcs_luts/sigm.h"
 #include "../config.h"
 
-void sigmoid_reduce(adf::input_async_circular_buffer <float,adf::extents<DIST_COEFF*VECTOR_LANES>> & __restrict x_in,
-                    adf::input_async_circular_buffer <float,adf::extents<DIST_COEFF*VECTOR_LANES>> & __restrict h_in,
+void sigmoid_reduce(input_stream<float> * __restrict x_in,
+                    input_stream<float> * __restrict h_in,
                     output_pktstream * out,
                     const float (&bias)[DIST_COEFF]
 
 ){  
-    auto p_xin = aie::begin_vector_circular<VECTOR_LANES>(x_in);
-    auto p_hin = aie::begin_vector_circular<VECTOR_LANES>(h_in);
-
     float res[DIST_COEFF];
-    aie::vector<float, 8> wrx[DIST_COEFF], urx[DIST_COEFF];
+    aie::vector<float, 4> wrx[DIST_COEFF], urx[DIST_COEFF];
     
     static constexpr float sig_m_coeff = 4096.0 / 12.0;
 
@@ -26,18 +23,9 @@ void sigmoid_reduce(adf::input_async_circular_buffer <float,adf::extents<DIST_CO
 
         for (int i = 0; i < DIST_COEFF; i++)
         // chess_unroll_loop(*)
-        {
-            x_in.acquire();
-            wrx[i] = *p_xin++;
-            x_in.release();
-            h_in.acquire();
-            urx[i] = *p_hin++;
-            h_in.release();
-        }
-
-        for (int i = 0; i < DIST_COEFF; i++)
-        // chess_unroll_loop(*)
-        {
+        {  
+            wrx[i] = readincr_v<4>(x_in);
+            urx[i] = readincr_v<4>(h_in);
             res[i] = bias[i]; 
             res[i] += aie::reduce_add(wrx[i]); 
             res[i] += aie::reduce_add(urx[i]);

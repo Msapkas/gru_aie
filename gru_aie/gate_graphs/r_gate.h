@@ -36,7 +36,7 @@ public:
     adf::source(Wr_x) = "mat_vec_mul/mat_input_vec_mul.cc";
     adf::runtime<ratio>(Wr_x) = 1;
 
-    adf::connect<>(x_input, Wr_x.in[0]);
+    adf::connect<adf::stream>(x_input, Wr_x.in[0]);
     adf::connect<adf::parameter>(Wr, adf::async(Wr_x.in[1]));
 
     // Ur[N](rows) x prev_hidden_vector
@@ -44,7 +44,7 @@ public:
     adf::source(Ur_h) = "mat_vec_mul/mat_hidden_vec_mul.cc";
     adf::runtime<ratio>(Ur_h) = 1;
 
-    adf::connect<>(hidden_input, Ur_h.in[0]);
+    adf::connect<adf::stream>(hidden_input, Ur_h.in[0]);
     adf::connect<adf::parameter>(Ur, adf::async(Ur_h.in[1]));
     adf::connect<adf::parameter>(hidden_init, adf::async(Ur_h.in[2]));
 
@@ -53,8 +53,8 @@ public:
     adf::source(r_sigm_reduce) = "act_reduce/sigmoid_reduce.cc";
     adf::runtime<ratio>(r_sigm_reduce) = 1;
 
-    adf::connect<>(Wr_x.out[0], r_sigm_reduce.in[0]);
-    adf::connect<>(Ur_h.out[0], r_sigm_reduce.in[1]);
+    adf::connect<adf::stream>(Wr_x.out[0], r_sigm_reduce.in[0]);
+    adf::connect<adf::stream>(Ur_h.out[0], r_sigm_reduce.in[1]);
     adf::connect<adf::parameter>(br, r_sigm_reduce.in[2]);
 
     // R Gate Elements Output
