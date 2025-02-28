@@ -1,4 +1,4 @@
-#include "candidate_hidden_gate.h"
+#include "candidate_hidden_state.h"
 #include "../config.h"
 
 candidate_hidden_gate candidate_hidden_gate;

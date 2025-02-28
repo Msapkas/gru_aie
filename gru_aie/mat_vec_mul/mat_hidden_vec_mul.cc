@@ -15,6 +15,7 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
     alignas(32) float hidden[H_VECTOR_SIZE];
 
     for (;;){
+
         if (first_iteration_flag) {
             for (int i = 0; i < H_VECTOR_SIZE; i++){
                 hidden[i] = h_init[i];
@@ -29,11 +30,12 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
         // Compute
         for (int i = 0; i < DIST_COEFF; i++)
         {   accum.from_vector(aie::zeros<float, 4>());
-            for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES; j++)
+            for (int j = 0; j < (H_VECTOR_SIZE - 1); j += (VECTOR_LANES - 1) )
                 {
                 accum = aie::mac(accum, 
-                                aie::load_v<4>((float*)&hidden[j]), 
-                                aie::load_v<4>((float*)&weights[i*H_VECTOR_SIZE + VECTOR_LANES*j]));
+                                aie::load_v<4>((float*)&hidden[j]),
+                                aie::load_v<4>((float*)&weights[i*(H_VECTOR_SIZE - 1) + j])
+                                );
             }
 
             aie::vector<float, 4> res = accum.to_vector<float>(0);
@@ -41,8 +43,6 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
             for (int i = 0; i < VECTOR_LANES; i++){
                 writeincr(out, *pout++);
             }
-
-            // writeincr_v4(out, accum);
 
         }
     }

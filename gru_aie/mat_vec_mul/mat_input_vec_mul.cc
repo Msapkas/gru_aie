@@ -22,11 +22,12 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
 
         for (int i = 0; i < DIST_COEFF; i++)
         {   accum.from_vector(aie::zeros<float, 4>());
-            for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES; j++)
+            for (int j = 0; j < (X_VECTOR_SIZE - 1) ; j += (VECTOR_LANES - 1))
                 {
                 accum = aie::mac(accum,
-                                aie::load_v<4>((float*)&x_input[i]),
-                                aie::load_v<4>((float*)&weights[i*X_VECTOR_SIZE + VECTOR_LANES*j]));
+                                aie::load_v<4>((float*)&x_input[j]),
+                                aie::load_v<4>((float*)&weights[i*(X_VECTOR_SIZE - 1) + j])
+                                );
             }
 
             aie::vector<float, 4> res = accum.to_vector<float>(0);

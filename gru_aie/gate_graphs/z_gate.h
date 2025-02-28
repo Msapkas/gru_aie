@@ -21,9 +21,12 @@ public:
     // ------------------------------
     adf::kernel Wz_x;
     adf::port<adf::input> Wz;
+    
     adf::kernel Uz_h;
     adf::port<adf::input> Uz;
+
     adf::kernel z_sigm_reduce;
+    adf::port<adf::input> identifier;
     adf::port<adf::input> bz;
     // ------------------------------
 
@@ -36,7 +39,7 @@ public:
     adf::source(Wz_x) = "mat_vec_mul/mat_input_vec_mul.cc";
     adf::runtime<ratio>(Wz_x) = 1;
 
-    adf::connect<>(x_input, Wz_x.in[0]);
+    adf::connect<adf::stream>(x_input, Wz_x.in[0]);
     adf::connect<adf::parameter>(Wz, adf::async(Wz_x.in[1]));
 
     // Uz[N](rows) x prev_hidden_vector
@@ -44,7 +47,7 @@ public:
     adf::source(Uz_h) = "mat_vec_mul/mat_hidden_vec_mul.cc";
     adf::runtime<ratio>(Uz_h) = 1;
 
-    adf::connect<>(hidden_input, Uz_h.in[0]);
+    adf::connect<adf::stream>(hidden_input, Uz_h.in[0]);
     adf::connect<adf::parameter>(Uz, adf::async(Uz_h.in[1]));
     adf::connect<adf::parameter>(hidden_init, adf::async(Uz_h.in[2]));
 
@@ -53,12 +56,13 @@ public:
     adf::source(z_sigm_reduce) = "act_reduce/sigmoid_reduce.cc";
     adf::runtime<ratio>(z_sigm_reduce) = 1;
 
-    adf::connect<>(Wz_x.out[0], z_sigm_reduce.in[0]);
-    adf::connect<>(Uz_h.out[0], z_sigm_reduce.in[1]);
+    adf::connect<adf::stream>(Wz_x.out[0], z_sigm_reduce.in[0]);
+    adf::connect<adf::stream>(Uz_h.out[0], z_sigm_reduce.in[1]);
     adf::connect<adf::parameter>(bz, z_sigm_reduce.in[2]);
+    adf::connect<adf::parameter>(identifier, z_sigm_reduce.in[3]);
 
     // Z Gate Elements Output
-    adf::connect<>(z_sigm_reduce.out[0], z_output);
+    adf::connect<adf::pktstream>(z_sigm_reduce.out[0], z_output);
     // -----------------------------------------------------------------------
 
     }

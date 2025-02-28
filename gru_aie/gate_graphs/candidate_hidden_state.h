@@ -12,7 +12,7 @@ public:
     // Input
     adf::port<adf::input> x_input;
     adf::port<adf::input> r_input;
-    adf::port<adf::input> h_input;
+    adf::port<adf::input> hidden_input;
     // RTP to initialize the hidden state
     adf::port<adf::input> hidden_init;
     // Output
@@ -22,8 +22,11 @@ public:
     // ------------------------------
     adf::kernel Wh_x;
     adf::port<adf::input> Wh;
+
     adf::kernel Uh_h;
     adf::port<adf::input> Uh;
+
+    adf::port<adf::input> identifier;
     adf::kernel tanh_reduce_kernel;
     adf::port<adf::input> bh;
     // ------------------------------
@@ -46,7 +49,7 @@ public:
     adf::runtime<ratio>(Uh_h) = 1;
 
     adf::connect<>(r_input, Uh_h.in[0]);
-    adf::connect<>(h_input, Uh_h.in[1]);
+    adf::connect<>(hidden_input, Uh_h.in[1]);
     adf::connect<adf::parameter>(Uh, adf::async(Uh_h.in[2]));
     adf::connect<adf::parameter>(hidden_init, adf::async(Uh_h.in[3]));
 
@@ -58,6 +61,7 @@ public:
     adf::connect<>(Wh_x.out[0], tanh_reduce_kernel.in[0]);
     adf::connect<>(Uh_h.out[0], tanh_reduce_kernel.in[1]);
     adf::connect<adf::parameter>(bh, tanh_reduce_kernel.in[2]);
+    adf::connect<adf::parameter>(identifier, tanh_reduce_kernel.in[3]);
 
     // R Gate Elements Output
     adf::connect<>(tanh_reduce_kernel.out[0], cand_h_output);

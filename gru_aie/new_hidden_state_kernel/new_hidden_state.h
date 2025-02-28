@@ -1,6 +1,6 @@
 #ifndef NEW_HIDDEN_STATE_H
 #define NEW_HIDDEN_STATE_H
-#include "config.h"
+#include "../config.h"
 
 void new_hidden_state(  input_stream<float> * __restrict cand_hid_state_in,
                         input_stream<float> * __restrict z_in,

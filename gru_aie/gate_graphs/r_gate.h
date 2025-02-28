@@ -21,9 +21,12 @@ public:
     // ------------------------------
     adf::kernel Wr_x;
     adf::port<adf::input> Wr;
+
     adf::kernel Ur_h;
     adf::port<adf::input> Ur;
+
     adf::kernel r_sigm_reduce;
+    adf::port<adf::input> identifier;
     adf::port<adf::input> br;
     // ------------------------------
 
@@ -56,6 +59,7 @@ public:
     adf::connect<adf::stream>(Wr_x.out[0], r_sigm_reduce.in[0]);
     adf::connect<adf::stream>(Ur_h.out[0], r_sigm_reduce.in[1]);
     adf::connect<adf::parameter>(br, r_sigm_reduce.in[2]);
+    adf::connect<adf::parameter>(identifier, r_sigm_reduce.in[3]);
 
     // R Gate Elements Output
     adf::connect<adf::pktstream>(r_sigm_reduce.out[0], r_output);
