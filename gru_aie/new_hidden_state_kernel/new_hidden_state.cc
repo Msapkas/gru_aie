@@ -25,7 +25,7 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
                 hhat[i] = readincr(cand_hidden_state_in);
             }
             // Compute using h_init
-            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+            for (int i = 0; i < (H_VECTOR_SIZE - 1); i+= (VECTOR_LANES - 1)) {
                 
                 z_v = aie::load_v<4>((float*)&z[i]);
                 hhat_v = aie::load_v<4>((float*)&hhat[i]);

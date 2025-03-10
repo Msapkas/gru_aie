@@ -29,7 +29,7 @@ class gru : public adf::graph {
     adf::pktmerge<NKERNELS> r_merge;
     adf::kernel r_aggregator_kernel;
 
-    // // Update gate declarations
+    // Update gate declarations
     z_gate z_gates[NKERNELS];
     adf::port<adf::input> z_identifier[NKERNELS];
     adf::port<adf::input> z_hidden_initialization[NKERNELS];
@@ -39,7 +39,7 @@ class gru : public adf::graph {
     adf::pktmerge<NKERNELS> z_merge;
     adf::kernel z_aggregator_kernel;
 
-    // // Cand Hidden state Gate decs
+    // Cand Hidden state Gate decs
     candidate_hidden_gate candidate_hidden_gates[NKERNELS];
     adf::port<adf::input> chsg_identifier[NKERNELS];
     adf::port<adf::input> chsg_hidden_initialization[NKERNELS];

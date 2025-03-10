@@ -36,11 +36,11 @@ void chsg_mat_r_mul_h(input_stream<float> * __restrict r_in,
         for (int i = 0; i < DIST_COEFF; i++)
         {   accum.from_vector(aie::zeros<float, 4>());
 
-            for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES; j++)
+            for (int j = 0; j < (H_VECTOR_SIZE - 1); j += (VECTOR_LANES - 1))
                 {
                 r_mul_h = aie::mul(aie::load_v<4>((float*)&reset_gate[j]), hidden[j]).to_vector<float>(0);
 
-                accum = aie::mac(accum, r_mul_h, aie::load_v<4>((float*)&weights[i*H_VECTOR_SIZE + VECTOR_LANES*j]));
+                accum = aie::mac(accum, r_mul_h, aie::load_v<4>((float*)&weights[i*(H_VECTOR_SIZE - 1) + j]));
             }
 
             aie::vector<float, 4> res = accum.to_vector<float>(0);

@@ -10,28 +10,30 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
                         const float (&weights)[X_VECTOR_SIZE*DIST_COEFF]
 
 ){  
-    alignas(32) aie::accum<accfloat, 4> accum;
-    alignas(32) float x_input[X_VECTOR_SIZE];
+    alignas(32) aie::accum<accfloat, VECTOR_LANES> accum;
+    alignas(32) aie::vector<float, VECTOR_LANES> x_input[X_VECTOR_SIZE/VECTOR_LANES];
 
     for (;;){
 
         // Read the input and keep it
-        for (int i = 0; i < X_VECTOR_SIZE; i++){
-            x_input[i] = readincr(in);
+        for (int i = 0; i < X_VECTOR_SIZE/VECTOR_LANES; i++){
+            x_input[i] = readincr_v<4>(in);
         }
 
+        aie::vector<float, 8> * v8_weights = (aie::vector<float, 8>*) &weights;
+
         for (int i = 0; i < DIST_COEFF; i++)
-        {   accum.from_vector(aie::zeros<float, 4>());
-            for (int j = 0; j < (X_VECTOR_SIZE - 1) ; j += (VECTOR_LANES - 1))
+        {   accum = aie::zeros<accfloat, 4>();
+
+            for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES ; j++)
                 {
                 accum = aie::mac(accum,
-                                aie::load_v<4>((float*)&x_input[j]),
-                                aie::load_v<4>((float*)&weights[i*(X_VECTOR_SIZE - 1) + j])
+                                x_input[j],
+                                v8_weights[i]
                                 );
             }
 
-            aie::vector<float, 4> res = accum.to_vector<float>(0);
-            float* pout = (float*)&res;
+            float* pout = (float*)&accum;
             for (int i = 0; i < VECTOR_LANES; i++){
                 writeincr(out, *pout++);
             }

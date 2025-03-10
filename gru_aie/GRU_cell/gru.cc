@@ -7,6 +7,8 @@ gru gru_graph;
 
 int main(int argc, char ** argv){
 
+    gru_graph.init();
+
     // Array to simulate the RTPs
     std::array<float,H_VECTOR_SIZE> h_init_test_params;
     std::array<unsigned int,NKERNELS> ID_param;
@@ -19,8 +21,6 @@ int main(int argc, char ** argv){
     for (int i = 0; i < DIST_COEFF*X_VECTOR_SIZE; i++){W_test_params[i] = 1;}
     for (int i = 0; i < DIST_COEFF*H_VECTOR_SIZE; i++){U_test_params[i] = 1;}
     for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = 1;}
-
-    gru_graph.init();
 
     // Pass all the RTPs
     for (int i = 0; i < NKERNELS; i++) {
@@ -44,8 +44,8 @@ int main(int argc, char ** argv){
         gru_graph.update(gru_graph.bh_params[i], b_test_params.data(), DIST_COEFF);
 
     }
-    
     gru_graph.update(gru_graph.new_hidden_state_gate_hidden_initialization, h_init_test_params.data(), H_VECTOR_SIZE);
+    // 
 
     gru_graph.run(1);
     gru_graph.end();
