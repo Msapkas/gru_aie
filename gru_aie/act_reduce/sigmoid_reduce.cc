@@ -13,7 +13,7 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
 
 ){  
     alignas(32) float res;
-    alignas(32) float wrx[DIST_COEFF], urx[DIST_COEFF];
+    alignas(32) aie::vector<float, VECTOR_LANES> wrx[DIST_COEFF], urx[DIST_COEFF];
     
     static constexpr float sigm_thresh = 6.0;
     static constexpr float sigm_m_coeff = 4096.0 / 12.0;
@@ -23,31 +23,32 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
 
     for(;;){
 
-        for (int i = 0; i < VECTOR_LANES ; i++)
-        {   wrx[i] = readincr<aie_stream_resource_in::a>(x_in);
-            urx[i] = readincr<aie_stream_resource_in::b>(h_in);
+        for (int i = 0; i < DIST_COEFF ; i++)
+        {   
+            wrx[i] = readincr_v<4>(x_in);
+            urx[i] = readincr_v<4>(h_in);
         }
 
         for (int i = 0; i < DIST_COEFF; i++)
         {   
             res = bias[i];
-            res += aie::reduce_add(aie::load_v<4>((float*)&wrx)); 
-            res += aie::reduce_add(aie::load_v<4>((float*)&urx));
+            res += aie::reduce_add(wrx[i]);
+            res += aie::reduce_add(urx[i]);
  
             if (res <= - sigm_thresh){
                 writeHeader(out,pktType,ID); //Generate header for output
-                writeincr(out, identifier);
+                writeincr(out, identifier + i);
                 writeincr(out, 0, true); //TLAST=true for last word
 
             } else if (res >= sigm_thresh){
                 writeHeader(out,pktType,ID);
-                writeincr(out, identifier);
+                writeincr(out, identifier + i);
                 writeincr(out, 1, true);
 
             } else {
                 int index = int((res + sigm_thresh)*sigm_m_coeff) ; // Eventually change these values to config
                 writeHeader(out,pktType,ID);
-                writeincr(out, identifier);
+                writeincr(out, identifier + i);
                 writeincr(out,sigm[index],true);
             }
         }

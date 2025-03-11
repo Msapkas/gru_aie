@@ -49,15 +49,16 @@ class gru : public adf::graph {
     adf::pktmerge<NKERNELS> chsg_merge;
     adf::kernel chsg_aggregator_kernel;
 
-    // // New hidden state Gate
+    // // // New hidden state Gate
     adf::kernel new_hidden_state_gate;
     adf::port<adf::input> new_hidden_state_gate_hidden_initialization;
 
     gru () {
 
         // PL I/O
-        PL_INPUT = adf::input_plio::create(adf::plio_128_bits, "data/test_in_arithmetic.txt");
-        PL_OUTPUT = adf::output_plio::create(adf::plio_128_bits,"data/h_outputs.txt");
+        PL_INPUT = adf::input_plio::create(adf::plio_128_bits, "data/test_in_x.txt");
+        PL_OUTPUT = adf::output_plio::create(adf::plio_128_bits,"data/outputs.txt");
+
 
         // pkg merges
         r_merge = adf::pktmerge<NKERNELS>::create();
@@ -80,7 +81,7 @@ class gru : public adf::graph {
 
             adf::connect<adf::pktstream> (r_gates[i].r_output, r_merge.in[i]);
 
-            // ------------------------------
+            // // ------------------------------
             // Z gate connections
             adf::connect<> (PL_INPUT.out[0], z_gates[i].x_input);
 
@@ -93,7 +94,7 @@ class gru : public adf::graph {
             adf::connect<adf::parameter> (bz_params[i], z_gates[i].bz);
             adf::connect<adf::pktstream> (z_gates[i].z_output, z_merge.in[i]);
 
-            // ------------------------------
+            // // ------------------------------
             // Cand Hidden state connections
             adf::connect<> (PL_INPUT.out[0], candidate_hidden_gates[i].x_input);
 
@@ -121,7 +122,7 @@ class gru : public adf::graph {
             adf::connect<adf::stream> (r_aggregator_kernel.out[0], candidate_hidden_gates[i].r_input);
         }
 
-        // ------------------------------
+        // // ------------------------------
         // Z aggregator could be redundant
         z_aggregator_kernel = adf::kernel::create(aggregator);
         adf::source(z_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
@@ -129,7 +130,7 @@ class gru : public adf::graph {
 
         adf::connect<adf::pktstream> (z_merge.out[0], z_aggregator_kernel.in[0]);
 
-        // ------------------------------
+        // // ------------------------------
         // Cand Hidden State outputs aggregator
         chsg_aggregator_kernel = adf::kernel::create(aggregator);
         adf::source(chsg_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
@@ -137,8 +138,7 @@ class gru : public adf::graph {
 
         adf::connect<adf::pktstream> (chsg_merge.out[0], chsg_aggregator_kernel.in[0]);
 
-
-        // ------------------------------
+        // // ------------------------------
         // New hidden state gate
         new_hidden_state_gate = adf::kernel::create(new_hidden_state);
         adf::source(new_hidden_state_gate) = "new_hidden_state_kernel/new_hidden_state.cc";

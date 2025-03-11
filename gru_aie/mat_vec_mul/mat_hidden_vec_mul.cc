@@ -11,39 +11,47 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
 
 ){  
     bool first_iteration_flag = true;
-    alignas(32) aie::accum<accfloat, 4> accum;
-    alignas(32) float hidden[H_VECTOR_SIZE];
+    alignas(32) aie::accum<accfloat, VECTOR_LANES> acc;
+    alignas(32) aie::vector<float, VECTOR_LANES> hidden[H_VECTOR_SIZE/VECTOR_LANES];
+
+    alignas(32) aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
+    alignas(32) aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 
     for (;;){
 
         if (first_iteration_flag) {
-            for (int i = 0; i < H_VECTOR_SIZE; i++){
-                hidden[i] = h_init[i];
+
+            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+                hidden[i] = v_hidden[i];
                 }
+        
                 first_iteration_flag = false;
+
         } else {
-            for (int i = 0; i < H_VECTOR_SIZE; i++){
-                hidden[i] = readincr(in);
+            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+                hidden[i] = readincr_v<4>(in);
                 }
         }
 
         // Compute
-        for (int i = 0; i < DIST_COEFF; i++)
-        {   accum.from_vector(aie::zeros<float, 4>());
-            for (int j = 0; j < (H_VECTOR_SIZE - 1); j += (VECTOR_LANES - 1) )
-                {
-                accum = aie::mac(accum, 
-                                aie::load_v<4>((float*)&hidden[j]),
-                                aie::load_v<4>((float*)&weights[i*(H_VECTOR_SIZE - 1) + j])
+        for (int i = 0; i < DIST_COEFF; i++){
+
+            acc = aie::zeros<accfloat, VECTOR_LANES>();
+
+            for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES ; j++){
+
+                acc = aie::mac( acc, 
+                                hidden[j],
+                                v_weights[i*(H_VECTOR_SIZE/VECTOR_LANES) + j]
                                 );
             }
 
-            aie::vector<float, 4> res = accum.to_vector<float>(0);
-            float* pout = (float*)&res;
-            for (int i = 0; i < VECTOR_LANES; i++){
+            float* pout = (float*)&acc;
+            for (int k = 0; k < VECTOR_LANES; k++){
                 writeincr(out, *pout++);
             }
 
+            chess_separator_scheduler();
         }
     }
 }

@@ -12,42 +12,53 @@ void chsg_mat_r_mul_h(input_stream<float> * __restrict r_in,
 
 ){  
     bool first_iteration_flag = true;
-    alignas(32) aie::accum<accfloat, 4> accum;
-    alignas(32) aie::vector<float, 4> r_mul_h;
-    alignas(32) float hidden[H_VECTOR_SIZE], reset_gate[H_VECTOR_SIZE];
+    alignas(32) aie::accum<accfloat, VECTOR_LANES> acc;
+    alignas(32) aie::vector<float, VECTOR_LANES> hidden[H_VECTOR_SIZE/VECTOR_LANES], reset_gate[H_VECTOR_SIZE/VECTOR_LANES];
+
+    aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
+    aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 
     for (;;){
+
         if (first_iteration_flag) {
-            for (int i = 0; i < H_VECTOR_SIZE; i++){
-                hidden[i] = h_init[i];
+
+            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+                hidden[i] = v_hidden[i];
                 }
+                
                 first_iteration_flag = false;
+
         } else {
-            for (int i = 0; i < H_VECTOR_SIZE; i++){
-                hidden[i] = readincr(h_in);
+            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+                hidden[i] = readincr_v<4>(h_in);
                 }
         }
 
-        for (int i = 0; i < H_VECTOR_SIZE; i++){
-            reset_gate[i] = readincr(r_in);
+        for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+            reset_gate[i] = readincr_v<4>(r_in);
         }
+
+        chess_separator_scheduler();
 
         // Compute
         for (int i = 0; i < DIST_COEFF; i++)
-        {   accum.from_vector(aie::zeros<float, 4>());
+        {   acc = aie::zeros<accfloat, VECTOR_LANES>();
 
-            for (int j = 0; j < (H_VECTOR_SIZE - 1); j += (VECTOR_LANES - 1))
-                {
-                r_mul_h = aie::mul(aie::load_v<4>((float*)&reset_gate[j]), hidden[j]).to_vector<float>(0);
+            for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES; j ++){
+                acc = aie::mac( acc, 
 
-                accum = aie::mac(accum, r_mul_h, aie::load_v<4>((float*)&weights[i*(H_VECTOR_SIZE - 1) + j]));
+                                aie::mul(reset_gate[j],hidden[j]).to_vector<float>(0),  //wrong arithmetics
+
+                                v_weights[i*(H_VECTOR_SIZE/VECTOR_LANES) + j]
+                                );
             }
 
-            aie::vector<float, 4> res = accum.to_vector<float>(0);
-            float* pout = (float*)&res;
+            float* pout = (float*)&acc;
             for (int i = 0; i < VECTOR_LANES; i++){
                 writeincr(out, *pout++);
             }
+
+        chess_separator_scheduler();
 
         }
     }
