@@ -46,9 +46,9 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
                                 );
             }
 
-            float* pout = (float*)&acc;
-            for (int k = 0; k < VECTOR_LANES; k++){
-                writeincr(out, *pout++);
+            // float* pout = (float*)&acc;
+            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+                writeincr(out, acc);
             }
 
             chess_separator_scheduler();

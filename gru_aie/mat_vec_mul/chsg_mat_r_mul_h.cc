@@ -55,9 +55,10 @@ void chsg_mat_r_mul_h(input_stream<float> * __restrict r_in,
                                 );
             }
 
-            float* pout = (float*)&acc;
-            for (int i = 0; i < VECTOR_LANES; i++){
-                writeincr(out, *pout++);
+            // float* pout = (float*)&acc;
+            // aie::vector<float, 4> v4_output = acc.to_vector<float>(0);
+            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+                writeincr(out, acc);
             }
 
         chess_separator_scheduler();

@@ -53,9 +53,9 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
         }
 
         // output new hidden state
-        float *pout = (float*) &old_hidden_state;
-        for (int i = 0; i < H_VECTOR_SIZE; i++) {
-            writeincr(new_hidden_state_out, *pout++);
+        // float *pout = (float*) &old_hidden_state;
+        for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+            writeincr(new_hidden_state_out, new_hidden_state[i]);
         }
         chess_separator_scheduler();
     }
