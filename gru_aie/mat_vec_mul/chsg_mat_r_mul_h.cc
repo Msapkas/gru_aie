@@ -13,12 +13,14 @@ void chsg_mat_r_mul_h(input_stream<float> * __restrict r_in,
 ){  
     bool first_iteration_flag = true;
     alignas(32) aie::accum<accfloat, VECTOR_LANES> acc;
-    alignas(32) aie::vector<float, VECTOR_LANES> hidden[H_VECTOR_SIZE/VECTOR_LANES], reset_gate[H_VECTOR_SIZE/VECTOR_LANES];
+    alignas(32) aie::vector<float, VECTOR_LANES> hidden[H_VECTOR_SIZE/VECTOR_LANES], reset_gate[H_VECTOR_SIZE/VECTOR_LANES], r_xelem_h[H_VECTOR_SIZE/VECTOR_LANES];
 
     aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
     aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 
     for (;;){
+
+        chess_separator_scheduler();
 
         if (first_iteration_flag) {
 
@@ -38,7 +40,9 @@ void chsg_mat_r_mul_h(input_stream<float> * __restrict r_in,
             reset_gate[i] = readincr_v<4>(r_in);
         }
 
-        chess_separator_scheduler();
+        for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
+            r_xelem_h[i] = aie::mul(reset_gate[i],hidden[i]).to_vector<float>(0);
+        }
 
         // Compute
         for (int i = 0; i < DIST_COEFF; i++)
@@ -46,9 +50,7 @@ void chsg_mat_r_mul_h(input_stream<float> * __restrict r_in,
 
             for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES; j ++){
                 acc = aie::mac( acc, 
-
-                                aie::mul(reset_gate[j],hidden[j]).to_vector<float>(0),  //wrong arithmetics
-
+                                r_xelem_h[j],
                                 v_weights[i*(H_VECTOR_SIZE/VECTOR_LANES) + j]
                                 );
             }
