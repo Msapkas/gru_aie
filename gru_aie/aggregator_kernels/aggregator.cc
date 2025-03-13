@@ -25,7 +25,7 @@ void aggregator(  input_pktstream * in,
         }
         
         for (int k = 0; k < H_VECTOR_SIZE; k++){
-            writeincr(out, aggregated_vector[k]+0.1*k);
+            writeincr(out, aggregated_vector[k]);
         }
         chess_separator_scheduler();
     }

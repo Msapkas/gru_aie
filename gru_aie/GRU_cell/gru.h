@@ -26,6 +26,7 @@ class gru : public adf::graph {
     adf::port<adf::input> Wr_params[NKERNELS];
     adf::port<adf::input> Ur_params[NKERNELS];
     adf::port<adf::input> br_params[NKERNELS];
+    for (int i = 0; )
     adf::pktmerge<NKERNELS> r_merge;
     adf::kernel r_aggregator_kernel;
 
@@ -115,7 +116,7 @@ class gru : public adf::graph {
         adf::source(r_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
         adf::runtime<ratio>(r_aggregator_kernel) = 1;
 
-        adf::connect<adf::pktstream> (r_merge.out[0], r_aggregator_kernel.in[0]);
+        adf::connect<> (r_merge.out[0], r_aggregator_kernel.in[0]);
 
         // Connect the output to all the Candidate Hidden state Gates
         for (int i = 0; i < NKERNELS; i++){
@@ -128,7 +129,7 @@ class gru : public adf::graph {
         adf::source(z_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
         adf::runtime<ratio>(z_aggregator_kernel) = 1;
 
-        adf::connect<adf::pktstream> (z_merge.out[0], z_aggregator_kernel.in[0]);
+        adf::connect<> (z_merge.out[0], z_aggregator_kernel.in[0]);
 
         // // ------------------------------
         // Cand Hidden State outputs aggregator
@@ -136,7 +137,7 @@ class gru : public adf::graph {
         adf::source(chsg_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
         adf::runtime<ratio>(chsg_aggregator_kernel) = 1;
 
-        adf::connect<adf::pktstream> (chsg_merge.out[0], chsg_aggregator_kernel.in[0]);
+        adf::connect<> (chsg_merge.out[0], chsg_aggregator_kernel.in[0]);
 
         // // ------------------------------
         // New hidden state gate

@@ -5,6 +5,6 @@
 #include "../config.h"
 
 void aggregator(  input_pktstream * in,
-                    output_stream<float> * out);
+                  output_stream<float> * __restrict out);
 
 #endif
