@@ -6,26 +6,28 @@
 #include "../config.h"
 
 void aggregator(  input_pktstream * in,
-                  output_stream<float> * __restrict out
-){ 
+                  output_stream<float> * out
+)
+
+{ 
     alignas(32) float aggregated_vector[H_VECTOR_SIZE];
-  
+    alignas(32) float input;
+    alignas(32) unsigned int idx;
+
     for (;;){
         chess_separator_scheduler();
         for (int i = 0; i < H_VECTOR_SIZE; i++){
             readincr(in); //read header and discard
-            unsigned int idx = readincr(in);
+            idx = readincr(in);
             // Cast - THE BITS THAT ARE INSIDE MEMORY LOCATION = &input -> TO FLOAT
-            //jesus christ
-            unsigned int input = readincr(in);
-            unsigned int* src = (unsigned int*)& input;
-            float* dest = (float*) src;
+            input = static_cast<float>(readincr(in));
+            // unsigned int* src = (unsigned int*)& input;
+            // float* dest = (float*) src;
             //
-            aggregated_vector[idx] = *dest;
+            aggregated_vector[idx] = input;
         }
-        
-        for (int k = 0; k < H_VECTOR_SIZE; k++){
-            writeincr(out, aggregated_vector[k]);
+        for (int i = 0; i < H_VECTOR_SIZE; i++){
+            writeincr(out, aggregated_vector[i]+i*0.1);
         }
         chess_separator_scheduler();
     }

@@ -26,7 +26,6 @@ class gru : public adf::graph {
     adf::port<adf::input> Wr_params[NKERNELS];
     adf::port<adf::input> Ur_params[NKERNELS];
     adf::port<adf::input> br_params[NKERNELS];
-    for (int i = 0; )
     adf::pktmerge<NKERNELS> r_merge;
     adf::kernel r_aggregator_kernel;
 
@@ -59,7 +58,6 @@ class gru : public adf::graph {
         // PL I/O
         PL_INPUT = adf::input_plio::create(adf::plio_128_bits, "data/test_in_x.txt");
         PL_OUTPUT = adf::output_plio::create(adf::plio_128_bits,"data/outputs.txt");
-
 
         // pkg merges
         r_merge = adf::pktmerge<NKERNELS>::create();
@@ -120,7 +118,7 @@ class gru : public adf::graph {
 
         // Connect the output to all the Candidate Hidden state Gates
         for (int i = 0; i < NKERNELS; i++){
-            adf::connect<adf::stream> (r_aggregator_kernel.out[0], candidate_hidden_gates[i].r_input);
+            adf::connect<> (r_aggregator_kernel.out[0], candidate_hidden_gates[i].r_input);
         }
 
         // // ------------------------------

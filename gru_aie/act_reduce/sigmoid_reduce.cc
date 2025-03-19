@@ -22,7 +22,6 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
     static const unsigned int ID = getPacketid(out,0); //for output pktstream
 
     for(;;){
-
         for (int i = 0; i < DIST_COEFF ; i++)
         {   
             wrx[i] = readincr_v<4>(x_in);
@@ -52,5 +51,6 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
                 writeincr(out,sigm[index],true);
             }
         }
+
     }
 }

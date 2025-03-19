@@ -51,11 +51,9 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
                 old_hidden_state[i] = new_hidden_state[i].to_vector<float>(0); // Keep the new hidden state in memory for later needs to be vector for the mac
             }
         }
-
         // output new hidden state
-        // float *pout = (float*) &old_hidden_state;
-        for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
-            writeincr(new_hidden_state_out, new_hidden_state[i]);
+        for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) {
+            writeincr(new_hidden_state_out, old_hidden_state[i]);
         }
         chess_separator_scheduler();
     }
