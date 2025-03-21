@@ -22,12 +22,12 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
     static const unsigned int ID = getPacketid(out,0); //for output pktstream
 
     for(;;){
+        chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF ; i++)
         {   
             wrx[i] = readincr_v<4>(x_in);
             urx[i] = readincr_v<4>(h_in);
         }
-
         for (int i = 0; i < DIST_COEFF; i++)
         {   
             res = bias[i];
@@ -38,12 +38,10 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
                 writeHeader(out,pktType,ID); //Generate header for output
                 writeincr(out, identifier + i);
                 writeincr(out, -1, true); //TLAST=true for last word
-
             } else if (res >= tanh_thresh){
                 writeHeader(out,pktType,ID);
                 writeincr(out, identifier + i);
                 writeincr(out, 1, true);
-
             } else {
                 int index = int((res + tanh_thresh)*tanh_m_coeff) ; // Eventually change these values to config
                 writeHeader(out,pktType,ID);
@@ -51,5 +49,6 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
                 writeincr(out,tan_h[index],true);
             }
         }
+        chess_separator_scheduler();
     }
 }

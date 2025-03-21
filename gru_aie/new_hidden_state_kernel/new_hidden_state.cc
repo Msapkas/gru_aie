@@ -22,32 +22,21 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
             z[i] = readincr_v<4>(z_in);
             hhat[i] = readincr_v<4>(cand_hidden_state_in);
         }
-
         if (first_iteration_flag) {
-
             // Compute using h_init
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) 
             // enter pragma loop unroll
                 {
-
                 new_hidden_state[i] = aie::mul(aie::sub(float(1) , z[i]), v_hidden[i]);
-
                 new_hidden_state[i] = aie::mac(new_hidden_state[i], z[i], hhat[i]);
-                
                 old_hidden_state[i] = new_hidden_state[i].to_vector<float>(0); // Keep the new hidden state in memory for later, needs to be vector for the mac
             }
-
             first_iteration_flag = false;
-
         } else {
-
             // Compute using old_hidden_state
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
-
                 new_hidden_state[i] = aie::mul(aie::sub(float(1) , z[i]), old_hidden_state[i]);
-
                 new_hidden_state[i] = aie::mac(new_hidden_state[i], z[i], hhat[i]);
-
                 old_hidden_state[i] = new_hidden_state[i].to_vector<float>(0); // Keep the new hidden state in memory for later needs to be vector for the mac
             }
         }

@@ -16,11 +16,11 @@ int main(int argc, char ** argv){
     std::array<float,DIST_COEFF*H_VECTOR_SIZE> U_test_params;
     std::array<float,DIST_COEFF> b_test_params;
 
-    for (int i = 0; i < H_VECTOR_SIZE; i++){h_init_test_params[i] = 1;}
+    for (int i = 0; i < H_VECTOR_SIZE; i++){h_init_test_params[i] = 0.1*i;}
     for (unsigned int i = 0; i < NKERNELS; i++){ID_param[i] = i*DIST_COEFF;}
-    for (int i = 0; i < DIST_COEFF*X_VECTOR_SIZE; i++){W_test_params[i] = 1;}
-    for (int i = 0; i < DIST_COEFF*H_VECTOR_SIZE; i++){U_test_params[i] = 1;}
-    for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = 0;}
+    for (int i = 0; i < DIST_COEFF*X_VECTOR_SIZE; i++){W_test_params[i] = 0.1*i;}
+    for (int i = 0; i < DIST_COEFF*H_VECTOR_SIZE; i++){U_test_params[i] = 0.1*i;}
+    for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = 0.1*i;}
 
     // Pass all the RTPs
     for (int i = 0; i < NKERNELS; i++) {
@@ -47,7 +47,7 @@ int main(int argc, char ** argv){
     gru_graph.update(gru_graph.new_hidden_state_gate_hidden_initialization, h_init_test_params.data(), H_VECTOR_SIZE);
     //
 
-    gru_graph.wait(10);
+    // gru_graph.wait(1);
     gru_graph.run(1);
     gru_graph.end();
     return 0;

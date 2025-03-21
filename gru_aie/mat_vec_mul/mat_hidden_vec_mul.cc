@@ -18,40 +18,30 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
     alignas(32) aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 
     for (;;){
-
         chess_separator_scheduler();
-
         if (first_iteration_flag) {
-
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
                 hidden[i] = v_hidden[i];
                 }
-        
                 first_iteration_flag = false;
-
         } else {
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
                 hidden[i] = readincr_v<4>(in);
                 }
         }
-
         // Compute
         for (int i = 0; i < DIST_COEFF; i++){
-
             acc = aie::zeros<accfloat, VECTOR_LANES>();
-
             for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES ; j++){
-
                 acc = aie::mac( acc, 
                                 hidden[j],
                                 v_weights[i*(H_VECTOR_SIZE/VECTOR_LANES) + j]
                                 );
             }
-
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
                 writeincr(out, acc);
             }
         }
-        chess_separator_scheduler();    
+        chess_separator_scheduler();
     }
 }

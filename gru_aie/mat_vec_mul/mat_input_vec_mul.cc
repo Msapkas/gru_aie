@@ -14,7 +14,7 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
     alignas(32) aie::vector<float, VECTOR_LANES> x_input[X_VECTOR_SIZE/VECTOR_LANES];
 
     for (;;){
-
+        chess_separator_scheduler();
         // Read the input and keep it
         for (int i = 0; i < X_VECTOR_SIZE/VECTOR_LANES; i++){
             x_input[i] = readincr_v<4>(in);
@@ -24,7 +24,6 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
 
         for (int i = 0; i < DIST_COEFF; i++)
         {   acc = aie::zeros<accfloat, VECTOR_LANES>();
-
             for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES ; j++)
                 {
                 acc = aie::mac(acc,
@@ -32,7 +31,6 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
                                 v_weights[i*(X_VECTOR_SIZE/VECTOR_LANES) + j]
                                 );
             }
-
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
                 writeincr(out, acc);
             }

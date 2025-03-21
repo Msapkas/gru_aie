@@ -2,8 +2,8 @@
 #define CONFIG_H
 
 constexpr unsigned int VECTOR_LANES = 4;
-constexpr unsigned int X_VECTOR_SIZE = 4;
-constexpr unsigned int H_VECTOR_SIZE = 4;
+constexpr unsigned int X_VECTOR_SIZE = 32;
+constexpr unsigned int H_VECTOR_SIZE = 32;
 constexpr unsigned int DIST_COEFF = 1;
 
 constexpr unsigned int NKERNELS = H_VECTOR_SIZE/DIST_COEFF;
