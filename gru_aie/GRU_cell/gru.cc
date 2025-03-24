@@ -47,8 +47,8 @@ int main(int argc, char ** argv){
     gru_graph.update(gru_graph.new_hidden_state_gate_hidden_initialization, h_init_test_params.data(), H_VECTOR_SIZE);
     //
 
-    // gru_graph.wait(1);
-    gru_graph.run(1);
+    // gru_graph.wait(10);
+    gru_graph.run(-1);
     gru_graph.end();
     return 0;
 

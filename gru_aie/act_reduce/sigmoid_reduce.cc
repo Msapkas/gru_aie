@@ -21,19 +21,22 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
     static const unsigned int pktType = 0;
     static const unsigned int ID = getPacketid(out,0); //for output pktstream
 
-    for(;;){
+    for (;;){
         chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF ; i++)
+        chess_loop_count(DIST_COEFF)
         {
             wrx[i] = readincr_v<4>(x_in);
             urx[i] = readincr_v<4>(h_in);
         }
+        // chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF; i++)
+        chess_loop_count(DIST_COEFF)
         {
             res = bias[i];
             res += aie::reduce_add(wrx[i]);
             res += aie::reduce_add(urx[i]);
- 
+
             if (res <= - sigm_thresh){
                 writeHeader(out,pktType,ID); //Generate header for output
                 writeincr(out, identifier + i);

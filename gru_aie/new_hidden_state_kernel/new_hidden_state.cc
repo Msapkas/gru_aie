@@ -10,8 +10,8 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
                         const float (&h_init)[H_VECTOR_SIZE]
 ){
     bool first_iteration_flag = true;
-    alignas(32) aie::vector<float, 4> old_hidden_state[H_VECTOR_SIZE/VECTOR_LANES], hhat[H_VECTOR_SIZE/VECTOR_LANES], z[H_VECTOR_SIZE/VECTOR_LANES];
-    alignas(32) aie::accum<accfloat, 4> new_hidden_state[H_VECTOR_SIZE/VECTOR_LANES];
+    alignas(32) aie::vector<float, VECTOR_LANES> old_hidden_state[H_VECTOR_SIZE/VECTOR_LANES], hhat[H_VECTOR_SIZE/VECTOR_LANES], z[H_VECTOR_SIZE/VECTOR_LANES];
+    alignas(32) aie::accum<accfloat, VECTOR_LANES> new_hidden_state[H_VECTOR_SIZE/VECTOR_LANES];
 
     aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 
@@ -22,6 +22,7 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
             z[i] = readincr_v<4>(z_in);
             hhat[i] = readincr_v<4>(cand_hidden_state_in);
         }
+        // chess_separator_scheduler();
         if (first_iteration_flag) {
             // Compute using h_init
             for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) 
@@ -39,6 +40,7 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
                 new_hidden_state[i] = aie::mac(new_hidden_state[i], z[i], hhat[i]);
                 old_hidden_state[i] = new_hidden_state[i].to_vector<float>(0); // Keep the new hidden state in memory for later needs to be vector for the mac
             }
+        // chess_separator_scheduler();
         }
         // output new hidden state
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) {

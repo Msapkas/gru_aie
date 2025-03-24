@@ -10,8 +10,9 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
                         const float (&weights)[X_VECTOR_SIZE*DIST_COEFF]
 
 ){  
-    alignas(32) aie::accum<accfloat, VECTOR_LANES> acc;
+    alignas(32) aie::accum<accfloat,VECTOR_LANES> acc;
     alignas(32) aie::vector<float, VECTOR_LANES> x_input[X_VECTOR_SIZE/VECTOR_LANES];
+    alignas(32) aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
 
     for (;;){
         chess_separator_scheduler();
@@ -19,9 +20,7 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
         for (int i = 0; i < X_VECTOR_SIZE/VECTOR_LANES; i++){
             x_input[i] = readincr_v<4>(in);
         }
-
-        aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
-
+        // chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF; i++)
         {   acc = aie::zeros<accfloat, VECTOR_LANES>();
             for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES ; j++)
@@ -31,10 +30,9 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
                                 v_weights[i*(X_VECTOR_SIZE/VECTOR_LANES) + j]
                                 );
             }
-            for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++){
-                writeincr(out, acc);
-            }
+            writeincr(out, acc);
         }
         chess_separator_scheduler();
     }
 }
+

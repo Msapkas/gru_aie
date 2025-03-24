@@ -7,10 +7,6 @@
       "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
       "-I/home/sapkas/GRU/gru_aie",
       "-I/home/sapkas/GRU/gru_aie/GRU_cell",
-      "-I/home/sapkas/GRU/gru_aie/act_reduce_kernels",
-      "-I/home/sapkas/GRU/gru_aie/act_reduce_kernels/act_funcs_luts",
-      "-I/home/sapkas/GRU/gru_aie/gate_graphs",
-      "-I/home/sapkas/GRU/gru_aie/mat_vec_mul_kernels",
       "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
       "/home/sapkas/GRU/gru_aie/GRU_cell/gru.cc"
     ],

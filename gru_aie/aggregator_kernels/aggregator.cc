@@ -8,8 +8,8 @@
 void aggregator(  input_pktstream * in, output_stream<float> * out )
 { 
     alignas(32) float aggregated_vector[H_VECTOR_SIZE];
-    int dummy;     
-  
+    int dummy;
+
     for (;;){
         chess_separator_scheduler();
         for (int i = 0; i < H_VECTOR_SIZE; i++)
@@ -24,7 +24,7 @@ void aggregator(  input_pktstream * in, output_stream<float> * out )
             //
             aggregated_vector[idx] = *dest;
         }
-        
+        //
         for (int i = 0; i < H_VECTOR_SIZE; i++) 
         {
             writeincr(out, aggregated_vector[i]);

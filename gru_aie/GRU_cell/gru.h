@@ -68,7 +68,7 @@ class gru : public adf::graph {
         for (int i = 0; i < NKERNELS; i++){
             // ------------------------------
             // R gates connections
-            adf::connect<> (PL_INPUT.out[0], r_gates[i].x_input);
+            adf::connect<adf::stream> (PL_INPUT.out[0], r_gates[i].x_input);
 
             adf::connect<adf::parameter> (r_identifier[i], r_gates[i].identifier);
 
@@ -82,7 +82,7 @@ class gru : public adf::graph {
 
             // // ------------------------------
             // Z gate connections
-            adf::connect<> (PL_INPUT.out[0], z_gates[i].x_input);
+            adf::connect<adf::stream> (PL_INPUT.out[0], z_gates[i].x_input);
 
             adf::connect<adf::parameter> (z_identifier[i], z_gates[i].identifier);
 
@@ -95,7 +95,7 @@ class gru : public adf::graph {
 
             // // ------------------------------
             // Cand Hidden state connections
-            adf::connect<> (PL_INPUT.out[0], candidate_hidden_gates[i].x_input);
+            adf::connect<adf::stream> (PL_INPUT.out[0], candidate_hidden_gates[i].x_input);
 
             adf::connect<adf::parameter> (chsg_identifier[i], candidate_hidden_gates[i].identifier);
 
@@ -118,7 +118,7 @@ class gru : public adf::graph {
 
         // Connect the output to all the Candidate Hidden state Gates
         for (int i = 0; i < NKERNELS; i++){
-            adf::connect<> (r_aggregator_kernel.out[0], candidate_hidden_gates[i].r_input);
+            adf::connect<adf::stream> (r_aggregator_kernel.out[0], candidate_hidden_gates[i].r_input);
         }
 
         // // ------------------------------
