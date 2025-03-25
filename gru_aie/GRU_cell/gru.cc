@@ -16,11 +16,11 @@ int main(int argc, char ** argv){
     std::array<float,DIST_COEFF*H_VECTOR_SIZE> U_test_params;
     std::array<float,DIST_COEFF> b_test_params;
 
-    for (int i = 0; i < H_VECTOR_SIZE; i++){h_init_test_params[i] = 0.1*i;}
+    for (int i = 0; i < H_VECTOR_SIZE; i++){h_init_test_params[i] = 0.01*i;}
     for (unsigned int i = 0; i < NKERNELS; i++){ID_param[i] = i*DIST_COEFF;}
-    for (int i = 0; i < DIST_COEFF*X_VECTOR_SIZE; i++){W_test_params[i] = 0.1*i;}
-    for (int i = 0; i < DIST_COEFF*H_VECTOR_SIZE; i++){U_test_params[i] = 0.1*i;}
-    for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = 0.1*i;}
+    for (int i = 0; i < DIST_COEFF*X_VECTOR_SIZE; i++){W_test_params[i] = 0.01*i;}
+    for (int i = 0; i < DIST_COEFF*H_VECTOR_SIZE; i++){U_test_params[i] = 0.001*i;}
+    for (int i = 0; i < DIST_COEFF; i++){b_test_params[i] = 0.01*i;}
 
     // Pass all the RTPs
     for (int i = 0; i < NKERNELS; i++) {

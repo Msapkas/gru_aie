@@ -29,7 +29,7 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
             wrx[i] = readincr_v<4>(x_in);
             urx[i] = readincr_v<4>(h_in);
         }
-        // chess_separator_scheduler();
+        chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF; i++)
         chess_loop_count(DIST_COEFF)
         {
