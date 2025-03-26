@@ -13,7 +13,6 @@ void aggregator(  input_pktstream * in, output_stream<float> * out )
     for (;;){
         chess_separator_scheduler();
         for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
-
         // insert loop count
         {
             dummy = readincr(in); //read header and discard
