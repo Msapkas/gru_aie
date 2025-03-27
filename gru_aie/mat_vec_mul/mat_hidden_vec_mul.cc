@@ -4,16 +4,16 @@
 #include "mat_hidden_vec_mul.h"
 #include "../config.h"
 
+// This kernel executes the U h ( Weights Matrix - Hidden State Vector ) multiplication. The Matrix-Vec multiplication is distributed row wise (each kernel performs mac operations of a row). 
+
 void mat_hidden_vec_mul(input_stream<float> * __restrict in,
                         output_stream<float> * __restrict out,
                         const float (&weights)[H_VECTOR_SIZE*DIST_COEFF],
                         const float (&h_init)[H_VECTOR_SIZE]
 
 ){  
-    // bool first_iteration_flag = true;
     alignas(32) aie::accum<accfloat, VECTOR_LANES> acc;
     alignas(32) aie::vector<float, VECTOR_LANES> hidden[H_VECTOR_SIZE/VECTOR_LANES];
-
     alignas(32) aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
     alignas(32) aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 

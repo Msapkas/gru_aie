@@ -15,7 +15,7 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
 
     aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 
-    // First iteration must use h_init
+    // First iteration outside the infinite loop must use h_init, passed by an RTP
     // Read Z and Cand Hidden State Gate from the aggregators
     for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
         { // readincr_v<4> will make sure we are reading float vectors of 4
@@ -42,7 +42,7 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
 
     // 
     for (;;){
-        chess_separator_scheduler();
+        chess_separator_scheduler(); //seperator pragmas are important inside the infinite loop
         // Data acquisition
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
             {
