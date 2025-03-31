@@ -6,6 +6,6 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
                     input_stream<float> * __restrict h_in,
                     output_pktstream * out,
                     const float (&bias)[DIST_COEFF],
-                    const unsigned int (&identifier));
+                    const int (&identifier));
 
 #endif

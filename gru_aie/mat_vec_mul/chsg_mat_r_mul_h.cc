@@ -42,7 +42,7 @@ void chsg_mat_r_mul_h(input_stream<float> *  r_in,
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
             {   
             acc = aie::zeros<accfloat, VECTOR_LANES>();
-            for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES; j ++)chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
+            for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES; j ++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
                 {
                 acc = aie::mac( acc, 
                                 r_xelem_h[j],

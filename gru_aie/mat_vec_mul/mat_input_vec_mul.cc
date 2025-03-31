@@ -27,7 +27,7 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF) // For each row
             {   
             acc = aie::zeros<accfloat, VECTOR_LANES>();
-            for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES ; j++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES) // Perform MAC until the last VECTOR LANE 
+            for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES ; j++) chess_loop_count(X_VECTOR_SIZE/VECTOR_LANES)
                 {
                 acc = aie::mac(acc,
                                 x_input[j],

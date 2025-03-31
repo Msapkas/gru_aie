@@ -58,8 +58,8 @@ public:
 
     adf::connect<adf::stream>(Wz_x.out[0], z_sigm_reduce.in[0]);
     adf::connect<adf::stream>(Uz_h.out[0], z_sigm_reduce.in[1]);
-    adf::connect<adf::parameter>(bz, z_sigm_reduce.in[2]);
-    adf::connect<adf::parameter>(identifier, z_sigm_reduce.in[3]);
+    adf::connect<adf::parameter>(bz, adf::async(z_sigm_reduce.in[2]));
+    adf::connect<adf::parameter>(identifier, adf::async(z_sigm_reduce.in[3]));
 
     // Z Gate Elements Output
     adf::connect<adf::pktstream>(z_sigm_reduce.out[0], z_output);

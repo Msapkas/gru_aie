@@ -60,8 +60,8 @@ public:
 
     adf::connect<>(Wh_x.out[0], tanh_reduce_kernel.in[0]);
     adf::connect<>(Uh_h.out[0], tanh_reduce_kernel.in[1]);
-    adf::connect<adf::parameter>(bh, tanh_reduce_kernel.in[2]);
-    adf::connect<adf::parameter>(identifier, tanh_reduce_kernel.in[3]);
+    adf::connect<adf::parameter>(bh, adf::async(tanh_reduce_kernel.in[2]));
+    adf::connect<adf::parameter>(identifier, adf::async(tanh_reduce_kernel.in[3]));
 
     // R Gate Elements Output
     adf::connect<>(tanh_reduce_kernel.out[0], cand_h_output);

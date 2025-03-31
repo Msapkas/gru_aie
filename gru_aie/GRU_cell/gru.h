@@ -72,10 +72,10 @@ class gru : public adf::graph {
 
             adf::connect<adf::parameter> (r_identifier[i], r_gates[i].identifier);
 
-            adf::connect<adf::parameter> (r_hidden_initialization[i], r_gates[i].hidden_init);
-
             adf::connect<adf::parameter> (Wr_params[i], r_gates[i].Wr);
             adf::connect<adf::parameter> (Ur_params[i], r_gates[i].Ur);
+            adf::connect<adf::parameter> (r_hidden_initialization[i], r_gates[i].hidden_init);
+            
             adf::connect<adf::parameter> (br_params[i], r_gates[i].br);
 
             adf::connect<adf::pktstream> (r_gates[i].r_output, r_merge.in[i]);
