@@ -23,7 +23,7 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
     }
 
     for (;;){
-        chess_separator_scheduler();
+        // chess_separator_scheduler();
         // Compute
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
             {

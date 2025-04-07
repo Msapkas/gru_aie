@@ -42,7 +42,6 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
 
     // 
     for (;;){
-        chess_separator_scheduler(); //seperator pragmas are important inside the infinite loop
         // Data acquisition
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
             {

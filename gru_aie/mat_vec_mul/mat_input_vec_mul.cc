@@ -17,7 +17,7 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
     alignas(32) aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
 
     for (;;){
-        chess_separator_scheduler(); // Separators are crucial for the correct scheduling of the kernel
+        // chess_separator_scheduler(); // Separators are crucial for the correct scheduling of the kernel
         // Read the input
         for (int i = 0; i < X_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(X_VECTOR_SIZE/VECTOR_LANES)
             {

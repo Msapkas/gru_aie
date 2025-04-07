@@ -19,8 +19,7 @@ void aggregator(  input_pktstream * in, output_stream<float> * out )
     int dummy;
 
     for (;;){
-        chess_separator_scheduler(); // separators are crucial
-        for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE) //this pragma instead is redundant (but better safe than sorry)
+        for (int i = 0; i < H_VECTOR_SIZE; i++)
         {
             dummy = readincr(in); // read header and discard
             int idx = int(readincr(in)); // the index is crucial that gets casted to int (unsigned int doesn't work!)
@@ -32,10 +31,10 @@ void aggregator(  input_pktstream * in, output_stream<float> * out )
             aggregated_vector[idx] = *dest;
         }
         chess_separator_scheduler(); // important to have a separator inbetween
-        for (int i = 0; i < H_VECTOR_SIZE; i++)  chess_loop_count(H_VECTOR_SIZE)
+        for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
         {
-            writeincr(out, aggregated_vector[i]); // This could be done in readincr_v<4> but its the same.
+            writeincr(out, aggregated_vector[i]);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(H_VECTOR_SIZE);
     }
 }
