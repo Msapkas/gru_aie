@@ -9,6 +9,7 @@
 #include "../gate_graphs/z_gate.h"
 #include "../gate_graphs/candidate_hidden_state.h"
 #include "../new_hidden_state_kernel/new_hidden_state.h"
+#include "../aggregator_kernels/master_aggregator.h"
 #include "../config.h"
 
 
@@ -26,8 +27,10 @@ class gru : public adf::graph {
     adf::port<adf::input> Wr_params[NKERNELS];
     adf::port<adf::input> Ur_params[NKERNELS];
     adf::port<adf::input> br_params[NKERNELS];
-    adf::pktmerge<NKERNELS> r_merge;
-    adf::kernel r_aggregator_kernel;
+    //
+    adf::pktmerge<NKERNELS/2> r_merge[2];
+    adf::kernel r_aggregator_kernel[2];
+    adf::kernel r_master_aggregator_kernel;
 
     // Update gate declarations
     z_gate z_gates[NKERNELS];
@@ -36,8 +39,10 @@ class gru : public adf::graph {
     adf::port<adf::input> Wz_params[NKERNELS];
     adf::port<adf::input> Uz_params[NKERNELS];
     adf::port<adf::input> bz_params[NKERNELS];
-    adf::pktmerge<NKERNELS> z_merge;
-    adf::kernel z_aggregator_kernel;
+    //
+    adf::pktmerge<NKERNELS/2> z_merge[2];
+    adf::kernel z_aggregator_kernel[2];
+    adf::kernel z_master_aggregator_kernel;
 
     // Cand Hidden state Gate decs
     candidate_hidden_gate candidate_hidden_gates[NKERNELS];
@@ -46,8 +51,10 @@ class gru : public adf::graph {
     adf::port<adf::input> Wh_params[NKERNELS];
     adf::port<adf::input> Uh_params[NKERNELS];
     adf::port<adf::input> bh_params[NKERNELS];
-    adf::pktmerge<NKERNELS> chsg_merge;
-    adf::kernel chsg_aggregator_kernel;
+    //
+    adf::pktmerge<NKERNELS/2> chsg_merge[2];
+    adf::kernel chsg_aggregator_kernel[2];
+    adf::kernel chsg_master_aggregator_kernel;
 
     // // // New hidden state Gate
     adf::kernel new_hidden_state_gate;
@@ -60,9 +67,11 @@ class gru : public adf::graph {
         PL_OUTPUT = adf::output_plio::create(adf::plio_128_bits,"data/outputs.txt");
 
         // pkg merges
-        r_merge = adf::pktmerge<NKERNELS>::create();
-        z_merge = adf::pktmerge<NKERNELS>::create();
-        chsg_merge = adf::pktmerge<NKERNELS>::create();
+        for (int i = 0; i < 2; i++){
+            r_merge[i] = adf::pktmerge<NKERNELS/2>::create();
+            z_merge[i] = adf::pktmerge<NKERNELS/2>::create();
+            chsg_merge[i] = adf::pktmerge<NKERNELS/2>::create();
+        }
 
         // Instatiate distributed Matrix - Vector Multiplications
         for (int i = 0; i < NKERNELS; i++){
@@ -70,15 +79,14 @@ class gru : public adf::graph {
             // R gates connections
             adf::connect<adf::stream> (PL_INPUT.out[0], r_gates[i].x_input);
 
-            adf::connect<adf::parameter> (r_identifier[i], adf::async(r_gates[i].identifier));
+            adf::connect<adf::parameter> (r_identifier[i], r_gates[i].identifier);
 
-            adf::connect<adf::parameter> (Wr_params[i], adf::async(r_gates[i].Wr));
-            adf::connect<adf::parameter> (Ur_params[i], adf::async(r_gates[i].Ur));
+            adf::connect<adf::parameter> (Wr_params[i], r_gates[i].Wr);
+            adf::connect<adf::parameter> (Ur_params[i], r_gates[i].Ur);
             adf::connect<adf::parameter> (r_hidden_initialization[i], r_gates[i].hidden_init);
             
             adf::connect<adf::parameter> (br_params[i], r_gates[i].br);
 
-            adf::connect<adf::pktstream> (r_gates[i].r_output, r_merge.in[i]);
 
             // // ------------------------------
             // Z gate connections
@@ -91,7 +99,7 @@ class gru : public adf::graph {
             adf::connect<adf::parameter> (Wz_params[i], z_gates[i].Wz);
             adf::connect<adf::parameter> (Uz_params[i], z_gates[i].Uz);
             adf::connect<adf::parameter> (bz_params[i], z_gates[i].bz);
-            adf::connect<adf::pktstream> (z_gates[i].z_output, z_merge.in[i]);
+           
 
             // // ------------------------------
             // Cand Hidden state connections
@@ -104,38 +112,80 @@ class gru : public adf::graph {
             adf::connect<adf::parameter> (Wh_params[i], candidate_hidden_gates[i].Wh);
             adf::connect<adf::parameter> (Uh_params[i], candidate_hidden_gates[i].Uh);
             adf::connect<adf::parameter> (bh_params[i], candidate_hidden_gates[i].bh);
-            adf::connect<adf::pktstream> (candidate_hidden_gates[i].cand_h_output, chsg_merge.in[i]);
+
+
+            // MERGERS 
+            if (i<NKERNELS/2){
+            // Connect half the gates distributed results to one merger 
+                adf::connect<adf::pktstream> (r_gates[i].r_output, r_merge[0].in[i]);
+                adf::connect<adf::pktstream> (z_gates[i].z_output, z_merge[0].in[i]);
+                adf::connect<adf::pktstream> (candidate_hidden_gates[i].cand_h_output, chsg_merge[0].in[i]);
+            } else {  
+            // And half to the other  
+                adf::connect<adf::pktstream> (r_gates[i].r_output, r_merge[1].in[i%(NKERNELS/2)]);
+                adf::connect<adf::pktstream> (z_gates[i].z_output, z_merge[1].in[i%(NKERNELS/2)]);
+                adf::connect<adf::pktstream> (candidate_hidden_gates[i].cand_h_output, chsg_merge[1].in[i%(NKERNELS/2)]);
+            }
 
         }
         
         // ------------------------------
-        // R aggregator
-        r_aggregator_kernel = adf::kernel::create(aggregator);
-        adf::source(r_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
-        adf::runtime<ratio>(r_aggregator_kernel) = 1;
+        // R aggregators are going to be 2 that then connect to the master_aggregator
 
-        adf::connect<> (r_merge.out[0], r_aggregator_kernel.in[0]);
+        for (int i = 0; i < 2; i++){
+            r_aggregator_kernel[i] = adf::kernel::create(aggregator);
+            adf::source(r_aggregator_kernel[i]) = "aggregator_kernels/aggregator.cc";
+            adf::runtime<ratio>(r_aggregator_kernel[i]) = 1;
+
+            adf::connect<> (r_merge[i].out[0], r_aggregator_kernel[i].in[0]);
+        }
+
+        // Master aggregator
+        r_master_aggregator_kernel = adf::kernel::create(master_aggregator);
+        adf::source(r_master_aggregator_kernel) = "aggregator_kernels/master_aggregator.cc";
+        adf::runtime<ratio>(r_master_aggregator_kernel) = 1;
+        adf::connect<> (r_aggregator_kernel[0].out[0], r_master_aggregator_kernel.in[0]);
+        adf::connect<> (r_aggregator_kernel[1].out[0], r_master_aggregator_kernel.in[1]);
 
         // Connect the output to all the Candidate Hidden state Gates
         for (int i = 0; i < NKERNELS; i++){
-            adf::connect<adf::stream> (r_aggregator_kernel.out[0], candidate_hidden_gates[i].r_input);
+                adf::connect<adf::stream> (r_master_aggregator_kernel.out[0], candidate_hidden_gates[i].r_input);
         }
 
         // // ------------------------------
         // Z aggregator could be redundant
-        z_aggregator_kernel = adf::kernel::create(aggregator);
-        adf::source(z_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
-        adf::runtime<ratio>(z_aggregator_kernel) = 1;
+        for (int i = 0; i < 2; i++){
+            z_aggregator_kernel[i] = adf::kernel::create(aggregator);
+            adf::source(z_aggregator_kernel[i]) = "aggregator_kernels/aggregator.cc";
+            adf::runtime<ratio>(z_aggregator_kernel[i]) = 1;
 
-        adf::connect<> (z_merge.out[0], z_aggregator_kernel.in[0]);
+            adf::connect<> (z_merge[i].out[0], z_aggregator_kernel[i].in[0]);
+        }
+
+        // Master aggregator
+        z_master_aggregator_kernel = adf::kernel::create(master_aggregator);
+        adf::source(z_master_aggregator_kernel) = "aggregator_kernels/master_aggregator.cc";
+        adf::runtime<ratio>(z_master_aggregator_kernel) = 1;
+        adf::connect<> (z_aggregator_kernel[0].out[0], z_master_aggregator_kernel.in[0]);
+        adf::connect<> (z_aggregator_kernel[1].out[0], z_master_aggregator_kernel.in[1]);
+
 
         // // ------------------------------
         // Cand Hidden State outputs aggregator
-        chsg_aggregator_kernel = adf::kernel::create(aggregator);
-        adf::source(chsg_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
-        adf::runtime<ratio>(chsg_aggregator_kernel) = 1;
+        for (int i = 0; i < 2; i++){
+            chsg_aggregator_kernel[i] = adf::kernel::create(aggregator);
+            adf::source(chsg_aggregator_kernel[i]) = "aggregator_kernels/aggregator.cc";
+            adf::runtime<ratio>(chsg_aggregator_kernel[i]) = 1;
 
-        adf::connect<> (chsg_merge.out[0], chsg_aggregator_kernel.in[0]);
+            adf::connect<> (chsg_merge[i].out[0], chsg_aggregator_kernel[i].in[0]);
+        }
+
+        // Master aggregator
+        chsg_master_aggregator_kernel = adf::kernel::create(master_aggregator);
+        adf::source(chsg_master_aggregator_kernel) = "aggregator_kernels/master_aggregator.cc";
+        adf::runtime<ratio>(chsg_master_aggregator_kernel) = 1;
+        adf::connect<> (chsg_aggregator_kernel[0].out[0], chsg_master_aggregator_kernel.in[0]);
+        adf::connect<> (chsg_aggregator_kernel[1].out[0], chsg_master_aggregator_kernel.in[1]);
 
         // // ------------------------------
         // New hidden state gate
@@ -144,8 +194,8 @@ class gru : public adf::graph {
         adf::runtime<ratio>(new_hidden_state_gate) = 1;
 
         // Aggregated inputs
-        adf::connect<adf::stream> (chsg_aggregator_kernel.out[0], new_hidden_state_gate.in[0]);
-        adf::connect<adf::stream> (z_aggregator_kernel.out[0], new_hidden_state_gate.in[1]);
+        adf::connect<adf::stream> (chsg_master_aggregator_kernel.out[0], new_hidden_state_gate.in[0]);
+        adf::connect<adf::stream> (z_master_aggregator_kernel.out[0], new_hidden_state_gate.in[1]);
 
         adf::connect<adf::parameter>(new_hidden_state_gate_hidden_initialization, new_hidden_state_gate.in[2]);
 

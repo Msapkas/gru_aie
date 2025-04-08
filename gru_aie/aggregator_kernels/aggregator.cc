@@ -15,14 +15,15 @@
 
 void aggregator(  input_pktstream * in, output_stream<float> * out )
 { 
-    alignas(32) float aggregated_vector[H_VECTOR_SIZE];
+    alignas(32) float aggregated_vector[H_VECTOR_SIZE/2];
     int dummy;
 
     for (;;){
-        for (int i = 0; i < H_VECTOR_SIZE; i++)
+        for (int i = 0; i < H_VECTOR_SIZE/2; i++)
         {
             dummy = readincr(in); // read header and discard
             int idx = int(readincr(in)); // the index is crucial that gets casted to int (unsigned int doesn't work!)
+            idx = idx % (NKERNELS/2);
             // Cast - THE BITS THAT ARE INSIDE MEMORY LOCATION = &input -> TO FLOAT
             unsigned int input = readincr(in);
             unsigned int* src = (unsigned int*)& input;
@@ -31,7 +32,7 @@ void aggregator(  input_pktstream * in, output_stream<float> * out )
             aggregated_vector[idx] = *dest;
         }
         chess_separator_scheduler(); // important to have a separator inbetween
-        for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
+        for (int i = 0; i < H_VECTOR_SIZE/2; i++) chess_loop_count(H_VECTOR_SIZE)
         {
             writeincr(out, aggregated_vector[i]);
         }
