@@ -8,7 +8,7 @@
 
 void mat_hidden_vec_mul(input_stream<float> * __restrict in,
                         output_stream<float> * __restrict out,
-                        const float (&weights)[VECTOR_LANES*H_VECTOR_SIZE*DIST_COEFF],
+                        const float (&weights)[DIST_COEFF*H_VECTOR_SIZE*VECTOR_LANES],
                         const float (&h_init)[H_VECTOR_SIZE]
 
 ){  
@@ -28,7 +28,7 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
             acc = aie::zeros<accfloat, VECTOR_LANES>();
             for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
                 {
-                acc = aie::mac( acc, v_weights[i], hidden[i]);
+                acc = aie::mac( acc, v_weights[i+H_VECTOR_SIZE*dist], hidden[i]);
             }
             writeincr(out, acc);
         }

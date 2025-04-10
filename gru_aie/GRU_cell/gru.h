@@ -56,7 +56,7 @@ class gru : public adf::graph {
     gru () {
 
         // PL I/O
-        PL_INPUT = adf::input_plio::create(adf::plio_128_bits, "data/test_in_x.txt");
+        PL_INPUT = adf::input_plio::create(adf::plio_32_bits, "data/test_in_x.txt");
         PL_OUTPUT = adf::output_plio::create(adf::plio_128_bits,"data/outputs.txt");
 
         // pkg merges
@@ -70,10 +70,10 @@ class gru : public adf::graph {
             // R gates connections
             adf::connect<adf::stream> (PL_INPUT.out[0], r_gates[i].x_input);
 
-            adf::connect<adf::parameter> (r_identifier[i], adf::async(r_gates[i].identifier));
+            adf::connect<adf::parameter> (r_identifier[i], r_gates[i].identifier);
 
-            adf::connect<adf::parameter> (Wr_params[i], adf::async(r_gates[i].Wr));
-            adf::connect<adf::parameter> (Ur_params[i], adf::async(r_gates[i].Ur));
+            adf::connect<adf::parameter> (Wr_params[i], r_gates[i].Wr);
+            adf::connect<adf::parameter> (Ur_params[i], r_gates[i].Ur);
             adf::connect<adf::parameter> (r_hidden_initialization[i], r_gates[i].hidden_init);
             
             adf::connect<adf::parameter> (br_params[i], r_gates[i].br);

@@ -45,7 +45,7 @@ void chsg_mat_r_mul_h(input_stream<float> * r_in,
             acc = aie::zeros<accfloat, VECTOR_LANES>();
             for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
                 {
-                acc = aie::mac( acc, v_weights[i], r_xelem_h[i]);
+                acc = aie::mac( acc, v_weights[i+H_VECTOR_SIZE*dist], r_xelem_h[i]);
             }
             writeincr(out, acc);
         }

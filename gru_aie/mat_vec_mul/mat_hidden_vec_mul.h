@@ -4,7 +4,7 @@
 
 void mat_hidden_vec_mul(input_stream<float> * __restrict in,
                         output_stream<float> * __restrict out,
-                        const float (&weights)[VECTOR_LANES*H_VECTOR_SIZE*DIST_COEFF],
+                        const float (&weights)[DIST_COEFF*H_VECTOR_SIZE*VECTOR_LANES],
                         const float (&h_init)[H_VECTOR_SIZE]);
 
 #endif

@@ -35,15 +35,17 @@ void adder_sigmoid(input_stream<float> * __restrict x_in,
         chess_separator_scheduler();
         // add the vectors and the bias element wise
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
-            {   
+            {
             res[i] = aie::add(wrx[i], bias[i]);
             res[i] = aie::add(res[i], urx[i]);
         }
+        // init id
+        int curr_id = identifier;
+        // Start loop
         for (int dist = 0; dist < DIST_COEFF; dist++ ) chess_loop_count(DIST_COEFF) chess_unroll_loop(*)
             {
             for (int i = 0; i < VECTOR_LANES; i++) chess_loop_count(VECTOR_LANES) chess_unroll_loop(*)
                 {
-                int curr_id = identifier + DIST_COEFF*i + i;
                 // once calculated the result check if you fall between the threshold sigm_thresh
                 if (res[dist][i] <= - sigm_thresh){
                     writeHeader(out,pktType,ID);    // Generate header for output
@@ -60,6 +62,8 @@ void adder_sigmoid(input_stream<float> * __restrict x_in,
                     writeincr(out, curr_id);
                     writeincr(out,sigm[index],true);
                 }
+                // incr id
+                curr_id++;
             } 
         }
         chess_separator_scheduler();

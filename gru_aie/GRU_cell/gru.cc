@@ -10,7 +10,6 @@ int main(int argc, char ** argv){
     float h_init_test_params [H_VECTOR_SIZE];
     int ID_param [NKERNELS];
     float W_test_params[DIST_COEFF*X_VECTOR_SIZE*VECTOR_LANES];
-    // float U_test_params[NKERNELS][DIST_COEFF*H_VECTOR_SIZE];
     float U_test_params[DIST_COEFF*H_VECTOR_SIZE*VECTOR_LANES];
     float b_test_params[H_VECTOR_SIZE];
 
@@ -27,19 +26,19 @@ int main(int argc, char ** argv){
         gru_graph.update(gru_graph.r_hidden_initialization[i], h_init_test_params, H_VECTOR_SIZE);
         gru_graph.update(gru_graph.Wr_params[i], W_test_params, DIST_COEFF*X_VECTOR_SIZE*VECTOR_LANES);
         gru_graph.update(gru_graph.Ur_params[i], U_test_params, DIST_COEFF*H_VECTOR_SIZE*VECTOR_LANES);
-        gru_graph.update(gru_graph.br_params[i], &b_test_params[i*DIST_COEFF], DIST_COEFF*VECTOR_LANES);
+        gru_graph.update(gru_graph.br_params[i], &b_test_params[i*DIST_COEFF*VECTOR_LANES], DIST_COEFF*VECTOR_LANES);
 
         gru_graph.update(gru_graph.z_identifier[i], &ID_param[i], 1);
         gru_graph.update(gru_graph.z_hidden_initialization[i], h_init_test_params, H_VECTOR_SIZE);
         gru_graph.update(gru_graph.Wz_params[i], W_test_params, DIST_COEFF*X_VECTOR_SIZE*VECTOR_LANES);
         gru_graph.update(gru_graph.Uz_params[i], U_test_params, DIST_COEFF*H_VECTOR_SIZE*VECTOR_LANES);
-        gru_graph.update(gru_graph.bz_params[i], &b_test_params[i*DIST_COEFF], DIST_COEFF*VECTOR_LANES);
+        gru_graph.update(gru_graph.bz_params[i], &b_test_params[i*DIST_COEFF*VECTOR_LANES], DIST_COEFF*VECTOR_LANES);
 
         gru_graph.update(gru_graph.chsg_identifier[i], &ID_param[i], 1);
         gru_graph.update(gru_graph.chsg_hidden_initialization[i], h_init_test_params, H_VECTOR_SIZE);
         gru_graph.update(gru_graph.Wh_params[i], W_test_params, DIST_COEFF*X_VECTOR_SIZE*VECTOR_LANES);
         gru_graph.update(gru_graph.Uh_params[i], U_test_params, DIST_COEFF*H_VECTOR_SIZE*VECTOR_LANES);
-        gru_graph.update(gru_graph.bh_params[i], &b_test_params[i*DIST_COEFF], DIST_COEFF*VECTOR_LANES);
+        gru_graph.update(gru_graph.bh_params[i], &b_test_params[i*DIST_COEFF*VECTOR_LANES], DIST_COEFF*VECTOR_LANES);
     }
     gru_graph.update(gru_graph.new_hidden_state_gate_hidden_initialization, h_init_test_params, H_VECTOR_SIZE);
     //

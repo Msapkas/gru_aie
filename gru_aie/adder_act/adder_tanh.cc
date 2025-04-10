@@ -35,11 +35,11 @@ void adder_tanh(   input_stream<float> * __restrict x_in,
             res[i] = aie::add(wrx[i], bias[i]);
             res[i] = aie::add(res[i], urx[i]);
         }
+        int curr_id = identifier;
         for (int dist = 0; dist < DIST_COEFF; dist++ ) chess_loop_count(DIST_COEFF) chess_unroll_loop(*)
             {
             for (int i = 0; i < VECTOR_LANES; i++) chess_loop_count(VECTOR_LANES) chess_unroll_loop(*)
                 {
-                int curr_id = identifier + DIST_COEFF*i + i;
                 // once calculated the result check if you fall between the threshold sigm_thresh
                 if (res[dist][i] <= - tanh_thresh){
                     writeHeader(out,pktType,ID);    // Generate header for output
@@ -56,6 +56,8 @@ void adder_tanh(   input_stream<float> * __restrict x_in,
                     writeincr(out, curr_id);
                     writeincr(out,tan_h[index],true);
                 }
+                // incr id
+                curr_id++;
             }
         }
         chess_separator_scheduler();
