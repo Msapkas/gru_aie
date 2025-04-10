@@ -8,39 +8,34 @@
 
 void mat_hidden_vec_mul(input_stream<float> * __restrict in,
                         output_stream<float> * __restrict out,
-                        const float (&weights)[H_VECTOR_SIZE*DIST_COEFF],
+                        const float (&weights)[VECTOR_LANES*H_VECTOR_SIZE*DIST_COEFF],
                         const float (&h_init)[H_VECTOR_SIZE]
 
 ){  
     alignas(32) aie::accum<accfloat, VECTOR_LANES> acc;
-    alignas(32) aie::vector<float, VECTOR_LANES> hidden[H_VECTOR_SIZE/VECTOR_LANES];
+    alignas(32) float hidden[H_VECTOR_SIZE];
     alignas(32) aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
-    alignas(32) aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 
-    for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
+    for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
         {
-        hidden[i] = v_hidden[i];
+        hidden[i] = h_init[i];
     }
 
     for (;;){
-        // chess_separator_scheduler();
         // Compute
-        for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
+        for (int dist = 0; dist < DIST_COEFF; dist++) chess_loop_count(DIST_COEFF)
             {
             acc = aie::zeros<accfloat, VECTOR_LANES>();
-            for (int j = 0; j < H_VECTOR_SIZE/VECTOR_LANES ; j++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
+            for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
                 {
-                acc = aie::mac( acc, 
-                                hidden[j],
-                                v_weights[i*(H_VECTOR_SIZE/VECTOR_LANES) + j]
-                                );
+                acc = aie::mac( acc, v_weights[i], hidden[i]);
             }
             writeincr(out, acc);
         }
         chess_separator_scheduler();
-        for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
+        for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
             {
-            hidden[i] = readincr_v<4>(in);
+            hidden[i] = readincr(in);
         }
         chess_separator_scheduler();
     }

@@ -4,7 +4,7 @@
 #include <adf.h>
 #include "../mat_vec_mul/mat_input_vec_mul.h"
 #include "../mat_vec_mul/mat_hidden_vec_mul.h"
-#include "../act_reduce/sigmoid_reduce.h"
+#include "../adder_act/adder_sigmoid.h"
 #include "../config.h"
 
 class z_gate: public adf::graph {
@@ -25,7 +25,7 @@ public:
     adf::kernel Uz_h;
     adf::port<adf::input> Uz;
 
-    adf::kernel z_sigm_reduce;
+    adf::kernel z_add_sigm;
     adf::port<adf::input> identifier;
     adf::port<adf::input> bz;
     // ------------------------------
@@ -52,17 +52,17 @@ public:
     adf::connect<adf::parameter>(hidden_init, adf::async(Uz_h.in[2]));
 
     // Reduce_add and apply sigmoid LUT
-    z_sigm_reduce = adf::kernel::create(sigmoid_reduce);
-    adf::source(z_sigm_reduce) = "act_reduce/sigmoid_reduce.cc";
-    adf::runtime<ratio>(z_sigm_reduce) = 1;
+    z_add_sigm = adf::kernel::create(adder_sigmoid);
+    adf::source(z_add_sigm) = "adder_act/adder_sigmoid.cc";
+    adf::runtime<ratio>(z_add_sigm) = 1;
 
-    adf::connect<adf::stream>(Wz_x.out[0], z_sigm_reduce.in[0]);
-    adf::connect<adf::stream>(Uz_h.out[0], z_sigm_reduce.in[1]);
-    adf::connect<adf::parameter>(bz, adf::async(z_sigm_reduce.in[2]));
-    adf::connect<adf::parameter>(identifier, adf::async(z_sigm_reduce.in[3]));
+    adf::connect<adf::stream>(Wz_x.out[0], z_add_sigm.in[0]);
+    adf::connect<adf::stream>(Uz_h.out[0], z_add_sigm.in[1]);
+    adf::connect<adf::parameter>(bz, adf::async(z_add_sigm.in[2]));
+    adf::connect<adf::parameter>(identifier, adf::async(z_add_sigm.in[3]));
 
     // Z Gate Elements Output
-    adf::connect<adf::pktstream>(z_sigm_reduce.out[0], z_output);
+    adf::connect<adf::pktstream>(z_add_sigm.out[0], z_output);
     // -----------------------------------------------------------------------
 
     }

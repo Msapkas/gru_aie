@@ -4,7 +4,7 @@
 #include <adf.h>
 #include "../mat_vec_mul/mat_input_vec_mul.h"
 #include "../mat_vec_mul/chsg_mat_r_mul_h.h"
-#include "../act_reduce/tanh_reduce.h"
+#include "../adder_act/adder_tanh.h"
 #include "../config.h"
 
 class candidate_hidden_gate: public adf::graph {
@@ -27,7 +27,7 @@ public:
     adf::port<adf::input> Uh;
 
     adf::port<adf::input> identifier;
-    adf::kernel tanh_reduce_kernel;
+    adf::kernel chsg_add_tanh;
     adf::port<adf::input> bh;
     // ------------------------------
 
@@ -54,17 +54,17 @@ public:
     adf::connect<adf::parameter>(hidden_init, adf::async(Uh_h.in[3]));
 
     // Reduce_add and apply sigmoid LUT
-    tanh_reduce_kernel = adf::kernel::create(tanh_reduce);
-    adf::source(tanh_reduce_kernel) = "act_reduce/tanh_reduce.cc";
-    adf::runtime<ratio>(tanh_reduce_kernel) = 1;
+    chsg_add_tanh = adf::kernel::create(adder_tanh);
+    adf::source(chsg_add_tanh) = "adder_act/adder_tanh.cc";
+    adf::runtime<ratio>(chsg_add_tanh) = 1;
 
-    adf::connect<>(Wh_x.out[0], tanh_reduce_kernel.in[0]);
-    adf::connect<>(Uh_h.out[0], tanh_reduce_kernel.in[1]);
-    adf::connect<adf::parameter>(bh, adf::async(tanh_reduce_kernel.in[2]));
-    adf::connect<adf::parameter>(identifier, adf::async(tanh_reduce_kernel.in[3]));
+    adf::connect<>(Wh_x.out[0], chsg_add_tanh.in[0]);
+    adf::connect<>(Uh_h.out[0], chsg_add_tanh.in[1]);
+    adf::connect<adf::parameter>(bh, adf::async(chsg_add_tanh.in[2]));
+    adf::connect<adf::parameter>(identifier, adf::async(chsg_add_tanh.in[3]));
 
     // R Gate Elements Output
-    adf::connect<>(tanh_reduce_kernel.out[0], cand_h_output);
+    adf::connect<>(chsg_add_tanh.out[0], cand_h_output);
     // ----------------------------------------------------------------------
 
     }

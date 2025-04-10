@@ -9,34 +9,32 @@
 
 void mat_input_vec_mul( input_stream<float> * __restrict in,
                         output_stream<float> * __restrict out,
-                        const float (&weights)[X_VECTOR_SIZE*DIST_COEFF]
+                        const float (&weights)[VECTOR_LANES*X_VECTOR_SIZE*DIST_COEFF]
 
 ){  
     alignas(32) aie::accum<accfloat,VECTOR_LANES> acc;
-    alignas(32) aie::vector<float, VECTOR_LANES> x_input[X_VECTOR_SIZE/VECTOR_LANES];
+    alignas(32) float x_input[X_VECTOR_SIZE];
     alignas(32) aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
 
     for (;;){
-        // chess_separator_scheduler(); // Separators are crucial for the correct scheduling of the kernel
         // Read the input
-        for (int i = 0; i < X_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(X_VECTOR_SIZE/VECTOR_LANES)
+        for (int i = 0; i < X_VECTOR_SIZE; i++) chess_loop_count(X_VECTOR_SIZE)
             {
-            x_input[i] = readincr_v<4>(in);
+            x_input[i] = readincr(in);
         }
         chess_separator_scheduler();
-        for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF) // For each row
-            {   
+        for (int dist = 0; dist < DIST_COEFF; dist++) chess_loop_count(DIST_COEFF) // For each row
+            {
             acc = aie::zeros<accfloat, VECTOR_LANES>();
-            for (int j = 0; j < X_VECTOR_SIZE/VECTOR_LANES ; j++) chess_loop_count(X_VECTOR_SIZE/VECTOR_LANES)
+            for (int i = 0; i < X_VECTOR_SIZE; i++) chess_loop_count(X_VECTOR_SIZE)
                 {
-                acc = aie::mac(acc,
-                                x_input[j],
-                                v_weights[i*(X_VECTOR_SIZE/VECTOR_LANES) + j]
-                                );
+                // How you parse the weights, really depends on how you store them
+                // Here, for simplicity, I assume that the weights are passed in the correct order fromt he PS
+                acc = aie::mac(acc, v_weights[i], x_input[i]);
             }
             writeincr(out, acc); // Write the output, which is a VECTOR LANE length vector
         }
-        chess_separator_scheduler(); 
+        chess_separator_scheduler();
     }
 }
 

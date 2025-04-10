@@ -17,7 +17,7 @@ constexpr int H_VECTOR_SIZE = 16;
 constexpr int DIST_COEFF = 2;
 
 // As stated above the NUMBER OF KERNELS that will be instatiated is:
-constexpr int NKERNELS = H_VECTOR_SIZE/DIST_COEFF;
+constexpr int NKERNELS = H_VECTOR_SIZE/DIST_COEFF/VECTOR_LANES;
 
 // 
 constexpr int LUT_SIZE = 4096; // This is half a Tiles Memory (16KB)
