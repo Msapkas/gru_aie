@@ -5,7 +5,7 @@
 #include "mat_input_vec_mul.h"
 #include "../config.h"
 
-// This kernel executes the W x ( Weights Matrix - Input Vector ) multiplication. The Matrix-Vec multiplication is distributed row wise (each kernel performs mac operations of a row). 
+// This kernel executes the W x ( Weights Matrix - Input Vector ) multiplication. The Matrix-Vec multiplication is distributed column wise (each kernel performs mac operations of a column of VECTOR_LANES rows). 
 
 void mat_input_vec_mul( input_stream<float> * __restrict in,
                         output_stream<float> * __restrict out,

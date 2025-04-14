@@ -14,9 +14,10 @@ constexpr int H_VECTOR_SIZE = 16;
 // The DISTRIBUTION COEFFICIENT control how many rows a kernel will MAC. So how many elements of the output vector will be
 // computed inside a kernel. Therefore also controls how many kernels will be instantiated. This is were parallelization
 // is being done.
-constexpr int DIST_COEFF = 2;
+constexpr int DIST_COEFF = 1;
 
 // As stated above the NUMBER OF KERNELS that will be instatiated is:
+// Change this name to NSUBGRAPHS
 constexpr int NKERNELS = H_VECTOR_SIZE/DIST_COEFF/VECTOR_LANES;
 
 // 

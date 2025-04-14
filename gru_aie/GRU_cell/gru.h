@@ -19,6 +19,12 @@ class gru : public adf::graph {
     adf::input_plio PL_INPUT;
     adf::output_plio PL_OUTPUT;
 
+    //test
+    adf::input_plio PL_INPUT_X;
+    adf::input_plio PL_INPUT_H;
+    adf::output_plio PL_OUTPUT_R;
+    adf::output_plio PL_OUTPUT_Z;
+
     // Reset gate declarations
     r_gate r_gates[NKERNELS];
     adf::port<adf::input> r_identifier[NKERNELS];
@@ -26,7 +32,7 @@ class gru : public adf::graph {
     adf::port<adf::input> Wr_params[NKERNELS];
     adf::port<adf::input> Ur_params[NKERNELS];
     adf::port<adf::input> br_params[NKERNELS];
-    adf::pktmerge<NKERNELS> r_merge;
+    adf::pktmerge<NKERNELS*VECTOR_LANES> r_merge;
     adf::kernel r_aggregator_kernel;
 
     // Update gate declarations
@@ -36,7 +42,7 @@ class gru : public adf::graph {
     adf::port<adf::input> Wz_params[NKERNELS];
     adf::port<adf::input> Uz_params[NKERNELS];
     adf::port<adf::input> bz_params[NKERNELS];
-    adf::pktmerge<NKERNELS> z_merge;
+    adf::pktmerge<NKERNELS*VECTOR_LANES> z_merge;
     adf::kernel z_aggregator_kernel;
 
     // Cand Hidden state Gate decs
@@ -46,7 +52,7 @@ class gru : public adf::graph {
     adf::port<adf::input> Wh_params[NKERNELS];
     adf::port<adf::input> Uh_params[NKERNELS];
     adf::port<adf::input> bh_params[NKERNELS];
-    adf::pktmerge<NKERNELS> chsg_merge;
+    adf::pktmerge<NKERNELS*VECTOR_LANES> chsg_merge;
     adf::kernel chsg_aggregator_kernel;
 
     // // // New hidden state Gate
@@ -60,12 +66,13 @@ class gru : public adf::graph {
         PL_OUTPUT = adf::output_plio::create(adf::plio_128_bits,"data/outputs.txt");
 
         // pkg merges
-        r_merge = adf::pktmerge<NKERNELS>::create();
-        z_merge = adf::pktmerge<NKERNELS>::create();
-        chsg_merge = adf::pktmerge<NKERNELS>::create();
+        r_merge = adf::pktmerge<NKERNELS*VECTOR_LANES>::create();
+        z_merge = adf::pktmerge<NKERNELS*VECTOR_LANES>::create();
+        chsg_merge = adf::pktmerge<NKERNELS*VECTOR_LANES>::create();
 
         // Instatiate distributed Matrix - Vector Multiplications
         for (int i = 0; i < NKERNELS; i++){
+
             // ------------------------------
             // R gates connections
             adf::connect<adf::stream> (PL_INPUT.out[0], r_gates[i].x_input);
@@ -78,9 +85,11 @@ class gru : public adf::graph {
             
             adf::connect<adf::parameter> (br_params[i], r_gates[i].br);
 
-            adf::connect<adf::pktstream> (r_gates[i].r_output, r_merge.in[i]);
+            for (int j = 0; j < VECTOR_LANES; j++){
+                adf::connect<adf::pktstream> (r_gates[i].r_output[j], r_merge.in[i*VECTOR_LANES + j]);
+            }
 
-            // // ------------------------------
+            // ------------------------------
             // Z gate connections
             adf::connect<adf::stream> (PL_INPUT.out[0], z_gates[i].x_input);
 
@@ -91,7 +100,10 @@ class gru : public adf::graph {
             adf::connect<adf::parameter> (Wz_params[i], z_gates[i].Wz);
             adf::connect<adf::parameter> (Uz_params[i], z_gates[i].Uz);
             adf::connect<adf::parameter> (bz_params[i], z_gates[i].bz);
-            adf::connect<adf::pktstream> (z_gates[i].z_output, z_merge.in[i]);
+
+            for (int j = 0; j < VECTOR_LANES; j++){
+                adf::connect<adf::pktstream> (z_gates[i].z_output[j], z_merge.in[i*VECTOR_LANES + j]);
+            }
 
             // // ------------------------------
             // Cand Hidden state connections
@@ -104,7 +116,10 @@ class gru : public adf::graph {
             adf::connect<adf::parameter> (Wh_params[i], candidate_hidden_gates[i].Wh);
             adf::connect<adf::parameter> (Uh_params[i], candidate_hidden_gates[i].Uh);
             adf::connect<adf::parameter> (bh_params[i], candidate_hidden_gates[i].bh);
-            adf::connect<adf::pktstream> (candidate_hidden_gates[i].cand_h_output, chsg_merge.in[i]);
+            
+            for (int j = 0; j < VECTOR_LANES; j++){
+                adf::connect<adf::pktstream> (candidate_hidden_gates[i].chsg_output[j], chsg_merge.in[i*VECTOR_LANES + j]);
+            }
 
         }
         
@@ -121,7 +136,7 @@ class gru : public adf::graph {
             adf::connect<adf::stream> (r_aggregator_kernel.out[0], candidate_hidden_gates[i].r_input);
         }
 
-        // // ------------------------------
+        // ------------------------------
         // Z aggregator could be redundant
         z_aggregator_kernel = adf::kernel::create(aggregator);
         adf::source(z_aggregator_kernel) = "aggregator_kernels/aggregator.cc";
@@ -137,7 +152,7 @@ class gru : public adf::graph {
 
         adf::connect<> (chsg_merge.out[0], chsg_aggregator_kernel.in[0]);
 
-        // // ------------------------------
+        // ------------------------------
         // New hidden state gate
         new_hidden_state_gate = adf::kernel::create(new_hidden_state);
         adf::source(new_hidden_state_gate) = "new_hidden_state_kernel/new_hidden_state.cc";
@@ -149,7 +164,7 @@ class gru : public adf::graph {
 
         adf::connect<adf::parameter>(new_hidden_state_gate_hidden_initialization, new_hidden_state_gate.in[2]);
 
-
+        // RECURRECT CONNECTIONS
         // New Hidden state Feedback
         for (int i = 0; i < NKERNELS; i++){
             adf::connect<adf::stream> (new_hidden_state_gate.out[0], r_gates[i].hidden_input);

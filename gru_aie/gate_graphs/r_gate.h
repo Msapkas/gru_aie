@@ -4,8 +4,10 @@
 #include <adf.h>
 #include "../mat_vec_mul/mat_input_vec_mul.h"
 #include "../mat_vec_mul/mat_hidden_vec_mul.h"
-#include "../adder_act/adder_sigmoid.h"
+#include "../adder/adder.h"
+#include "../activation_functions/sigmoid.h"
 #include "../config.h"
+// #include "adf/new_frontend/types.h"
 
 class r_gate: public adf::graph {
 public:
@@ -15,9 +17,9 @@ public:
     // RTP to initialize the hidden state
     adf::port<adf::input> hidden_init;
     // Output
-    adf::port<adf::output> r_output;
+    adf::port<adf::output> r_output[VECTOR_LANES];
 
-    // Declare kernels
+    // Declare kernels, ports and splits
     // ------------------------------
     adf::kernel Wr_x;
     adf::port<adf::input> Wr;
@@ -25,9 +27,13 @@ public:
     adf::kernel Ur_h;
     adf::port<adf::input> Ur;
 
-    adf::kernel r_add_sigm; //
+    adf::kernel add; //
     adf::port<adf::input> identifier;
     adf::port<adf::input> br;
+
+    adf::pktsplit<VECTOR_LANES> vector_split;
+
+    adf::kernel apply_sigmoid[VECTOR_LANES];
     // ------------------------------
 
     r_gate() {
@@ -51,22 +57,37 @@ public:
     adf::connect<adf::parameter>(Ur, adf::async(Ur_h.in[1]));
     adf::connect<adf::parameter>(hidden_init, adf::async(Ur_h.in[2]));
 
-    // Reduce_add and apply sigmoid LUT
-    r_add_sigm = adf::kernel::create(adder_sigmoid);
-    adf::source(r_add_sigm) = "adder_act/adder_sigmoid.cc";
-    adf::runtime<ratio>(r_add_sigm) = 1;
+    // Add the outputs from the Matrix Vector input and hidden
+    add = adf::kernel::create(adder);
+    adf::source(add) = "adder/adder.cc";
+    adf::runtime<ratio>(add) = 1;
 
-    adf::connect<adf::stream>(Wr_x.out[0], r_add_sigm.in[0]);
-    adf::connect<adf::stream>(Ur_h.out[0], r_add_sigm.in[1]);
-    adf::connect<adf::parameter>(br, adf::async(r_add_sigm.in[2]));
-    adf::connect<adf::parameter>(identifier, adf::async(r_add_sigm.in[3]));
+    adf::connect<adf::stream>(Wr_x.out[0], add.in[0]);
+    adf::connect<adf::stream>(Ur_h.out[0], add.in[1]);
 
-    // R Gate Elements Output
-    adf::connect<adf::pktstream>(r_add_sigm.out[0], r_output);
-    // ----------------------------------------------------------------------
+    adf::connect<adf::parameter>(br, adf::async(add.in[2]));
+    adf::connect<adf::parameter>(identifier, adf::async(add.in[3]));
 
+    // Split the vector to apply sigmoid element wise
+    vector_split = adf::pktsplit<VECTOR_LANES>::create();
+    adf::connect<adf::pktstream> (add.out[0], vector_split.in[0]);
+
+    // Serve each output of the Adder - through the split - to a dedicated sigmoid kernel
+    for (int i = 0; i < VECTOR_LANES; i++)
+        {
+        apply_sigmoid[i] = adf::kernel::create(sigmoid);
+        adf::source(apply_sigmoid[i]) = "activation_functions/sigmoid.cc";
+        adf::runtime<ratio>(apply_sigmoid[i]) = 1;
+        
+        adf::connect<adf::pktstream> (vector_split.out[i], apply_sigmoid[i].in[0]);
+
+        // R Gate Elements Output 
+        // The kernel outputs directly to the ports of the subgraph (4 in total)
+        adf::connect<adf::pktstream> (apply_sigmoid[i].out[0], r_output[i]);
     }
 
+    // ----------------------------------------------------------------------
+    }
 };
 
 #endif

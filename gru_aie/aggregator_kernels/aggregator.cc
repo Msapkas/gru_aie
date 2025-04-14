@@ -16,12 +16,11 @@
 void aggregator(  input_pktstream * in, output_stream<float> * out )
 { 
     alignas(32) float aggregated_vector[H_VECTOR_SIZE];
-    int dummy;
 
     for (;;){
         for (int i = 0; i < H_VECTOR_SIZE; i++)
         {
-            dummy = readincr(in); // read header and discard
+            readincr(in); // read header and discard
             int idx = int(readincr(in)); // the index is crucial that gets casted to int (unsigned int doesn't work!)
             // Cast - THE BITS THAT ARE INSIDE MEMORY LOCATION = &input -> TO FLOAT
             unsigned int input = readincr(in);

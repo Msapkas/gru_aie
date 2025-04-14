@@ -20,23 +20,23 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
         {
         hidden[i] = h_init[i];
     }
-
+    chess_separator_scheduler();
     for (;;){
         // Compute
         for (int dist = 0; dist < DIST_COEFF; dist++) chess_loop_count(DIST_COEFF)
             {
             acc = aie::zeros<accfloat, VECTOR_LANES>();
-            for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
+            for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE) chess_prepare_for_pipelining 
                 {
                 acc = aie::mac( acc, v_weights[i+H_VECTOR_SIZE*dist], hidden[i]);
             }
             writeincr(out, acc);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(VECTOR_LANES);
         for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
             {
             hidden[i] = readincr(in);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(H_VECTOR_SIZE);
     }
 }

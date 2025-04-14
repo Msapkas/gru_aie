@@ -4,11 +4,12 @@
 #include <adf.h>
 #include "../mat_vec_mul/mat_input_vec_mul.h"
 #include "../mat_vec_mul/chsg_mat_r_mul_h.h"
-#include "../adder_act/adder_tanh.h"
+#include "../adder/adder.h"
+#include "../activation_functions/hyper_tan.h"
 #include "../config.h"
 
 class candidate_hidden_gate: public adf::graph {
-public:    
+public:
     // Input
     adf::port<adf::input> x_input;
     adf::port<adf::input> r_input;
@@ -16,7 +17,7 @@ public:
     // RTP to initialize the hidden state
     adf::port<adf::input> hidden_init;
     // Output
-    adf::port<adf::output> cand_h_output;
+    adf::port<adf::output> chsg_output[VECTOR_LANES];
 
     // Declare kernels
     // ------------------------------
@@ -26,9 +27,13 @@ public:
     adf::kernel Uh_h;
     adf::port<adf::input> Uh;
 
+    adf::kernel add; //
     adf::port<adf::input> identifier;
-    adf::kernel chsg_add_tanh;
     adf::port<adf::input> bh;
+
+    adf::pktsplit<VECTOR_LANES> vector_split;
+
+    adf::kernel apply_tanh[VECTOR_LANES];
     // ------------------------------
 
     candidate_hidden_gate () {
@@ -53,20 +58,36 @@ public:
     adf::connect<adf::parameter>(Uh, adf::async(Uh_h.in[2]));
     adf::connect<adf::parameter>(hidden_init, adf::async(Uh_h.in[3]));
 
-    // Reduce_add and apply sigmoid LUT
-    chsg_add_tanh = adf::kernel::create(adder_tanh);
-    adf::source(chsg_add_tanh) = "adder_act/adder_tanh.cc";
-    adf::runtime<ratio>(chsg_add_tanh) = 1;
+    // Add the outputs from the Matrix Vector input and hidden
+    add = adf::kernel::create(adder);
+    adf::source(add) = "adder/adder.cc";
+    adf::runtime<ratio>(add) = 1;
 
-    adf::connect<>(Wh_x.out[0], chsg_add_tanh.in[0]);
-    adf::connect<>(Uh_h.out[0], chsg_add_tanh.in[1]);
-    adf::connect<adf::parameter>(bh, adf::async(chsg_add_tanh.in[2]));
-    adf::connect<adf::parameter>(identifier, adf::async(chsg_add_tanh.in[3]));
+    adf::connect<adf::stream>(Wh_x.out[0], add.in[0]);
+    adf::connect<adf::stream>(Uh_h.out[0], add.in[1]);
 
-    // R Gate Elements Output
-    adf::connect<>(chsg_add_tanh.out[0], cand_h_output);
+    adf::connect<adf::parameter>(bh, adf::async(add.in[2]));
+    adf::connect<adf::parameter>(identifier, adf::async(add.in[3]));
+
+    // Split the vector to apply sigmoid element wise
+    vector_split = adf::pktsplit<VECTOR_LANES>::create();
+    adf::connect<adf::pktstream> (add.out[0], vector_split.in[0]);
+
+    // Serve each output of the Adder - through the split - to a dedicated sigmoid kernel
+    for (int i = 0; i < VECTOR_LANES; i++)
+        {
+        apply_tanh[i] = adf::kernel::create(hyper_tan);
+        adf::source(apply_tanh[i]) = "activation_functions/hyper_tan.cc";
+        adf::runtime<ratio>(apply_tanh[i]) = 1;
+        
+        adf::connect<adf::pktstream> (vector_split.out[i], apply_tanh[i].in[0]);
+
+        // R Gate Elements Output 
+        // The kernel outputs directly to the ports of the subgraph (4 in total)
+        adf::connect<adf::pktstream> (apply_tanh[i].out[0], chsg_output[i]);
+    }
+
     // ----------------------------------------------------------------------
-
     }
 };
 
