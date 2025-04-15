@@ -39,6 +39,7 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
         writeincr(new_hidden_state_out, prev_hidden_state[i]);
         // The var is named prev_hidden_state but at this point is just the new_hidden_state in a vector form
     }
+    chess_separator_scheduler(H_VECTOR_SIZE);
 
     // 
     for (;;){
@@ -61,6 +62,6 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
             {
             writeincr(new_hidden_state_out, prev_hidden_state[i]);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(H_VECTOR_SIZE);
     }
 }

@@ -34,7 +34,7 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
             }
             writeincr(out, acc); // Write the output, which is a VECTOR LANE length vector
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(VECTOR_LANES);
     }
 }
 

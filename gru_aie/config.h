@@ -7,10 +7,10 @@ constexpr int VECTOR_LANES = 4;
 
 // The size of the Input Vector. This affects only the amount of macs that will be performed in a row
 // and does not affect the amount of kernels used. Must be a multiple of VECTOR LANES.
-constexpr int X_VECTOR_SIZE = 24;
+constexpr int X_VECTOR_SIZE = 6;
 // The size of the Hidden State Vector. Must be a multiple of VECTOR LANES.
 
-constexpr int H_VECTOR_SIZE = 16;
+constexpr int H_VECTOR_SIZE = 20;
 // The DISTRIBUTION COEFFICIENT control how many rows a kernel will MAC. So how many elements of the output vector will be
 // computed inside a kernel. Therefore also controls how many kernels will be instantiated. This is were parallelization
 // is being done.

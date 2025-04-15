@@ -26,7 +26,7 @@ void adder (input_stream <float> * __restrict x_vector_in,
         // chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
             {
-            for (int j = 0; j < VECTOR_LANES; j++)
+            for (int j = 0; j < VECTOR_LANES; j++) chess_loop_count(VECTOR_LANES)
                 {
                 // The index is : base id passed + the DIST offset + the current VECTOR LANE
                 int idx = id + i*VECTOR_LANES + j;

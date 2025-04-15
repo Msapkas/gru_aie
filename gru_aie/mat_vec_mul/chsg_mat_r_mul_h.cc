@@ -24,7 +24,7 @@ void chsg_mat_r_mul_h(input_stream<float> * r_in,
         {
         hidden[i] = v_hidden[i];
     }
-
+    chess_separator_scheduler();
     // Infinite loop 
     for (;;){
         // Read r gate from aggregator
@@ -49,7 +49,7 @@ void chsg_mat_r_mul_h(input_stream<float> * r_in,
             }
             writeincr(out, acc);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(H_VECTOR_SIZE);
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
             {
             hidden[i] = readincr_v<4>(h_in);
