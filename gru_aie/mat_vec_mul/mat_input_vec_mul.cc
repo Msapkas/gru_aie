@@ -23,7 +23,7 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
             {
             x_input[i] = readincr_v<4>(in);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(X_VECTOR_SIZE);
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF) // For each row
             {   
             acc = aie::zeros<accfloat, VECTOR_LANES>();
@@ -36,7 +36,7 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
             }
             writeincr(out, acc); // Write the output, which is a VECTOR LANE length vector
         }
-        chess_separator_scheduler(); 
+        chess_separator_scheduler(VECTOR_LANES); 
     }
 }
 

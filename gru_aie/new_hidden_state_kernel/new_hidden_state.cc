@@ -39,7 +39,7 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
         writeincr(new_hidden_state_out, prev_hidden_state[i]);
         // The var is named prev_hidden_state but at this point is just the new_hidden_state in a vector form
     }
-
+    chess_separator_scheduler(H_VECTOR_SIZE);
     // 
     for (;;){
         // Data acquisition
@@ -48,6 +48,7 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
             z[i] = readincr_v<4>(z_in);
             hhat[i] = readincr_v<4>(cand_hidden_state_in);
         }
+        chess_separator_scheduler(H_VECTOR_SIZE);
         // Compute using prev_hidden_state
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
             {
@@ -55,12 +56,11 @@ void new_hidden_state(  input_stream<float> * __restrict cand_hidden_state_in,
                 new_hidden_state[i] = aie::mac(new_hidden_state[i], z[i], hhat[i]);
                 prev_hidden_state[i] = new_hidden_state[i].to_vector<float>(0); // Keep the new hidden state in memory for later needs to be vector for the mac
         }
-        chess_separator_scheduler();
         // output new hidden state
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
             {
             writeincr(new_hidden_state_out, prev_hidden_state[i]);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(H_VECTOR_SIZE);
     }
 }
