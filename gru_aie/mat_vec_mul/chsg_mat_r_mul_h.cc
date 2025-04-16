@@ -15,7 +15,7 @@ void chsg_mat_r_mul_h(input_stream<float> * r_in,
 
 ){  
     alignas(32) aie::accum<accfloat, VECTOR_LANES> acc;
-    alignas(32) aie::vector<float, VECTOR_LANES> hidden[H_VECTOR_SIZE/VECTOR_LANES], r_xelem_h[H_VECTOR_SIZE/VECTOR_LANES], reset_gate[H_VECTOR_SIZE];
+    alignas(32) aie::vector<float, VECTOR_LANES> hidden[H_VECTOR_SIZE/VECTOR_LANES], r_xelem_h[H_VECTOR_SIZE/VECTOR_LANES], reset_gate[H_VECTOR_SIZE/VECTOR_LANES];
     alignas(32) aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
     alignas(32) aie::vector<float, VECTOR_LANES> * v_hidden  = (aie::vector<float, VECTOR_LANES>*) &h_init;
 
