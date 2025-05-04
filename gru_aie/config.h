@@ -14,7 +14,11 @@ constexpr int H_VECTOR_SIZE = 20;
 // The DISTRIBUTION COEFFICIENT control how many rows a kernel will MAC. So how many elements of the output vector will be
 // computed inside a kernel. Therefore also controls how many kernels will be instantiated. This is were parallelization
 // is being done.
-constexpr int DIST_COEFF = 2;
+constexpr int DIST_COEFF = 1;
+
+// Linear layers Parameters
+constexpr int sequence_length = 20;
+constexpr int output_dims_0 = 64;
 
 // As stated above the NUMBER OF KERNELS that will be instatiated is:
 constexpr int NKERNELS = H_VECTOR_SIZE/DIST_COEFF;

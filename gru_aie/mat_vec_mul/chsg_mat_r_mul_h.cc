@@ -27,12 +27,13 @@ void chsg_mat_r_mul_h(input_stream<float> * r_in,
     chess_separator_scheduler(H_VECTOR_SIZE);
     // Infinite loop 
     for (;;){
-        // chess_separator_scheduler(); // Scheduling pragmas are important. Seperate inputs from outputs so that they do not get scheduled in the same instruction (dealocks)
+        chess_separator_scheduler(); // Scheduling pragmas are important. Seperate inputs from outputs so that they do not get scheduled in the same instruction (dealocks)
         // Read r gate from aggregator
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
             {
             reset_gate[i] = readincr_v<4>(r_in);
         }
+        chess_separator_scheduler(H_VECTOR_SIZE);
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
             {
             r_xelem_h[i] = aie::mul(reset_gate[i],hidden[i]).to_vector<float>(0);
@@ -49,7 +50,7 @@ void chsg_mat_r_mul_h(input_stream<float> * r_in,
                                 v_weights[i*(H_VECTOR_SIZE/VECTOR_LANES) + j]
                                 );
             }
-            writeincr(out, acc);
+            writeincr(out, acc.to_vector<float>(0));
         }
         chess_separator_scheduler(VECTOR_LANES);
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)

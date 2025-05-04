@@ -7,9 +7,10 @@
       "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
       "-I/home/sapkas/GRU/gru_aie",
       "-I/home/sapkas/GRU/gru_aie/GRU_cell",
+      "-I/home/sapkas/GRU/gru_aie/top_graph",
       "-I/tools/Xilinx/Vitis/2024.1/aietools/include",
-      "/home/sapkas/GRU/gru_aie/GRU_cell/gru.cc"
+      "/home/sapkas/GRU/gru_aie/top_graph/top_graph.cc"
     ],
-    "file": "/home/sapkas/GRU/gru_aie/GRU_cell/gru.cc"
+    "file": "/home/sapkas/GRU/gru_aie/top_graph/top_graph.cc"
   }
 ]

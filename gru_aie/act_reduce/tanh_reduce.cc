@@ -16,7 +16,7 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
     alignas(32) aie::vector<float, VECTOR_LANES> wrx[DIST_COEFF], urx[DIST_COEFF];
     
     static constexpr float tanh_thresh = 3.0;
-    static constexpr float tanh_m_coeff = 4096.0 / 6.0;
+    static constexpr float tanh_m_coeff = 4095.0 / 6.0;
 
     static const unsigned int pktType = 0;
     static const unsigned int ID = getPacketid(out,0); //for output pktstream
@@ -28,7 +28,7 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
             wrx[i] = readincr_v<4>(x_in);
             urx[i] = readincr_v<4>(h_in);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(H_VECTOR_SIZE);
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
         {
             res = bias[i];
@@ -50,6 +50,6 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
                 writeincr(out,tan_h[index],true);
             }
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(3);
     }
 }

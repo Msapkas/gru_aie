@@ -12,14 +12,14 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
                     const int (&identifier)
 
 ){  
-    alignas(32) float res;
-    alignas(32) aie::vector<float, VECTOR_LANES> wrx[DIST_COEFF], urx[DIST_COEFF];
+    float res;
+    aie::vector<float, VECTOR_LANES> wrx[DIST_COEFF], urx[DIST_COEFF];
     
     // This value have to do with the threshold of the input.
     static constexpr float sigm_thresh = 6.0;
-    // This value pre-calculates the division needed to scale the input value between 0 - 4096, which are the indexes of the LUT
+    // This value pre-calculates the division needed to scale the input value between 0 - 4095, which are the indexes of the LUT
     // by precalculating this number we skip cycle consuming division and do a multiplication instead!
-    static constexpr float sigm_m_coeff = 4096.0 / 12.0;
+    static constexpr float sigm_m_coeff = 4095.0 / 12.0;
 
     // Some header values
     static const unsigned int pktType = 0;
@@ -34,7 +34,7 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
             wrx[i] = readincr_v<4>(x_in);
             urx[i] = readincr_v<4>(h_in);
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(H_VECTOR_SIZE);
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
             {   
             // add the bias and reduce the vectors
@@ -59,6 +59,6 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
                 writeincr(out,sigm[index],true);
             }
         }
-        chess_separator_scheduler();
+        chess_separator_scheduler(3);
     }
 }

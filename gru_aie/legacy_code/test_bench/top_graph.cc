@@ -1,13 +1,13 @@
 #include "top_graph.h"
 
 // Instantiate graph
-test_bench test_bench;
+top_graph top_graph;
 
 int main(int argc, char ** argv){
 
-    test_bench.init();
+    top_graph.init();
     //test_bench.wait(10);
-    test_bench.run(1);
-    test_bench.end();
+    top_graph.run(1);
+    top_graph.end();
     return 0;
 }

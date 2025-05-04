@@ -16,8 +16,10 @@ class gru : public adf::graph {
     public:
 
     // // Pl IO
-    adf::input_plio PL_INPUT;
-    adf::output_plio PL_OUTPUT;
+    // adf::input_plio PL_INPUT;
+    // adf::output_plio PL_OUTPUT;
+    adf::port<adf::input> GRU_INPUT;
+    adf::port<adf::output> GRU_OUTPUT;
 
     // Reset gate declarations
     r_gate r_gates[NKERNELS];
@@ -56,8 +58,8 @@ class gru : public adf::graph {
     gru () {
 
         // PL I/O
-        PL_INPUT = adf::input_plio::create(adf::plio_128_bits, "data/test_in_x.txt");
-        PL_OUTPUT = adf::output_plio::create(adf::plio_128_bits,"data/outputs.txt");
+        // PL_INPUT = adf::input_plio::create(adf::plio_128_bits, "data/test_in_x.txt");
+        // PL_OUTPUT = adf::output_plio::create(adf::plio_128_bits,"data/outputs.txt");
 
         // pkg merges
         r_merge = adf::pktmerge<NKERNELS>::create();
@@ -68,12 +70,13 @@ class gru : public adf::graph {
         for (int i = 0; i < NKERNELS; i++){
             // ------------------------------
             // R gates connections
-            adf::connect<adf::stream> (PL_INPUT.out[0], r_gates[i].x_input);
+            // adf::connect<adf::stream> (PL_INPUT.out[0], r_gates[i].x_input);
+            adf::connect<adf::stream> (GRU_INPUT, r_gates[i].x_input);
 
-            adf::connect<adf::parameter> (r_identifier[i], adf::async(r_gates[i].identifier));
+            adf::connect<adf::parameter> (r_identifier[i], r_gates[i].identifier);
 
-            adf::connect<adf::parameter> (Wr_params[i], adf::async(r_gates[i].Wr));
-            adf::connect<adf::parameter> (Ur_params[i], adf::async(r_gates[i].Ur));
+            adf::connect<adf::parameter> (Wr_params[i], r_gates[i].Wr);
+            adf::connect<adf::parameter> (Ur_params[i], r_gates[i].Ur);
             adf::connect<adf::parameter> (r_hidden_initialization[i], r_gates[i].hidden_init);
             
             adf::connect<adf::parameter> (br_params[i], r_gates[i].br);
@@ -82,7 +85,8 @@ class gru : public adf::graph {
 
             // // ------------------------------
             // Z gate connections
-            adf::connect<adf::stream> (PL_INPUT.out[0], z_gates[i].x_input);
+            // adf::connect<adf::stream> (PL_INPUT.out[0], z_gates[i].x_input);
+            adf::connect<adf::stream> (GRU_INPUT, z_gates[i].x_input);
 
             adf::connect<adf::parameter> (z_identifier[i], z_gates[i].identifier);
 
@@ -95,7 +99,8 @@ class gru : public adf::graph {
 
             // // ------------------------------
             // Cand Hidden state connections
-            adf::connect<adf::stream> (PL_INPUT.out[0], candidate_hidden_gates[i].x_input);
+            // adf::connect<adf::stream> (PL_INPUT.out[0], candidate_hidden_gates[i].x_input);
+            adf::connect<adf::stream> (GRU_INPUT, candidate_hidden_gates[i].x_input);
 
             adf::connect<adf::parameter> (chsg_identifier[i], candidate_hidden_gates[i].identifier);
 
@@ -161,7 +166,9 @@ class gru : public adf::graph {
         // New Hidden State PL Output
         // The OUPUT is sharing a blockign condition with ALOT of kernel. It may be wise to 
         // create an indipendent passthrough output kernel
-        adf::connect<adf::stream> (new_hidden_state_gate.out[0], PL_OUTPUT.in[0]);
+
+        // adf::connect<adf::stream> (new_hidden_state_gate.out[0], PL_OUTPUT.in[0]);
+        adf::connect<adf::stream> (new_hidden_state_gate.out[0], GRU_OUTPUT);
 
     }
 };
