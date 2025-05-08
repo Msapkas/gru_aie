@@ -13,7 +13,6 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
 
 ){  
     alignas(32) float res;
-    alignas(32) aie::vector<float, VECTOR_LANES> wrx[DIST_COEFF], urx[DIST_COEFF];
     
     static constexpr float lut_max_idx = lut_size - 1.0;
     static constexpr float tanh_m_coeff = lut_max_idx/ (2.0 * tanh_thresh);
@@ -23,17 +22,11 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
 
     for (;;){
         chess_separator_scheduler();
-        for (int i = 0; i < DIST_COEFF ; i++) chess_loop_count(DIST_COEFF)
-        {
-            wrx[i] = readincr_v<4>(x_in);
-            urx[i] = readincr_v<4>(h_in);
-        }
-        chess_separator_scheduler(H_VECTOR_SIZE);
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
         {
             res = bias[i];
-            res += aie::reduce_add(wrx[i]);
-            res += aie::reduce_add(urx[i]);
+            res += readincr(x_in);
+            res += readincr(h_in);
 
             if (res <= - tanh_thresh){
                 writeHeader(out,pktType,ID); //Generate header for output

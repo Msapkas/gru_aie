@@ -34,7 +34,7 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
                                 v_weights[i*(X_VECTOR_SIZE/VECTOR_LANES) + j]
                                 );
             }
-            writeincr(out, acc.to_vector<float>(0)); // Write the output, which is a VECTOR LANE length vector
+            writeincr(out, aie::reduce_add( acc.to_vector<float>(0)) ); // Write the output, which is a VECTOR LANE length vector
         }
         chess_separator_scheduler(VECTOR_LANES); 
     }

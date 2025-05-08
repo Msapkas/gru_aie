@@ -35,7 +35,7 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
                                 v_weights[i*(H_VECTOR_SIZE/VECTOR_LANES) + j]
                                 );
             }
-            writeincr(out, acc.to_vector<float>(0));
+            writeincr(out, aie::reduce_add( acc.to_vector<float>(0)) );
         }
         chess_separator_scheduler(VECTOR_LANES);
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)

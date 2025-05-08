@@ -13,9 +13,7 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
 
 ){  
     float res;
-    aie::vector<float, VECTOR_LANES> wrx[DIST_COEFF], urx[DIST_COEFF];
 
- 
     // This value pre-calculates the division needed to scale the input value between 0 - 4095, which are the indexes of the LUT
     // by precalculating this number we skip cycle consuming division and do a multiplication instead!
     static constexpr float lut_max_idx = lut_size - 1.0;
@@ -28,19 +26,12 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
     // infinite loop
     for (;;){
         chess_separator_scheduler();
-        // Accept the last mac of a row
-        for (int i = 0; i < DIST_COEFF ; i++) chess_loop_count(DIST_COEFF)
-            {
-            wrx[i] = readincr_v<4>(x_in);
-            urx[i] = readincr_v<4>(h_in);
-        }
-        chess_separator_scheduler(H_VECTOR_SIZE);
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
             {   
             // add the bias and reduce the vectors
             res = bias[i];
-            res += aie::reduce_add(wrx[i]);
-            res += aie::reduce_add(urx[i]);
+            res += readincr(x_in);
+            res += readincr(h_in);
 
             // once calculated the result check if you fall between the threshold sigm_thresh
             if (res <= - sigm_thresh){
