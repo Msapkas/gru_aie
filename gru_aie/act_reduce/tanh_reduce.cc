@@ -15,8 +15,8 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
     alignas(32) float res;
     alignas(32) aie::vector<float, VECTOR_LANES> wrx[DIST_COEFF], urx[DIST_COEFF];
     
-    static constexpr float tanh_thresh = 3.0;
-    static constexpr float tanh_m_coeff = 4095.0 / 6.0;
+    static constexpr float lut_max_idx = lut_size - 1.0;
+    static constexpr float tanh_m_coeff = lut_max_idx/ (2.0 * tanh_thresh);
 
     static const unsigned int pktType = 0;
     static const unsigned int ID = getPacketid(out,0); //for output pktstream

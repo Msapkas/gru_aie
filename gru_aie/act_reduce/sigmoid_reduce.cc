@@ -14,12 +14,12 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
 ){  
     float res;
     aie::vector<float, VECTOR_LANES> wrx[DIST_COEFF], urx[DIST_COEFF];
-    
-    // This value have to do with the threshold of the input.
-    static constexpr float sigm_thresh = 6.0;
+
+ 
     // This value pre-calculates the division needed to scale the input value between 0 - 4095, which are the indexes of the LUT
     // by precalculating this number we skip cycle consuming division and do a multiplication instead!
-    static constexpr float sigm_m_coeff = 4095.0 / 12.0;
+    static constexpr float lut_max_idx = lut_size - 1.0;
+    static constexpr float sigm_m_coeff = lut_max_idx / (2 * sigm_thresh);
 
     // Some header values
     static const unsigned int pktType = 0;

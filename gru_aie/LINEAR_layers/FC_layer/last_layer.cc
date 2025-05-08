@@ -14,11 +14,11 @@ void last_fully_connected ( input_stream<float> * input, output_stream<float> * 
     alignas(32) aie::vector<float, VECTOR_LANES> * v_layer_parameters = (aie::vector<float, VECTOR_LANES>*) &layer_parameters;
     alignas(32) float res;
 
-    // This value have to do with the threshold of the input.
-    static constexpr float sigm_thresh = 6.0;
-    // This value pre-calculates the division needed to scale the input value between 0 - 4096, which are the indexes of the LUT
+  
+    // This value pre-calculates the division needed to scale the input value between 0 - 4095, which are the indexes of the LUT
     // by precalculating this number we skip cycle consuming division and do a multiplication instead!
-    static constexpr float sigm_m_coeff = 4095.0 / 12.0;
+    static constexpr float lut_max_idx = lut_size - 1.0;
+    static constexpr float sigm_m_coeff = lut_max_idx / (2 * sigm_thresh);
 
     for (;;){
         chess_separator_scheduler();
@@ -33,11 +33,16 @@ void last_fully_connected ( input_stream<float> * input, output_stream<float> * 
         acc = aie::zeros<accfloat, VECTOR_LANES>();
         for (int i = 0; i < output_dims_0/VECTOR_LANES; i++) chess_loop_count(output_dims_0/VECTOR_LANES)
             {
+            // aie::print(v_layer_parameters[i], true, "MAC weights:  ");
+            // aie::print(input_vector[i], true, "with vector:  ");
             acc = aie::mac(acc, input_vector[i], v_layer_parameters[i]);
+            // aie::print(acc, true, "Result:  ");
         }
 
         // I have the MACed row, in a vector of 4s. Just like the mat_input_vec_mul kernel. I need to reduce and add the bias.
         res = aie::reduce_add(acc.to_vector<float>(0)) + bias;
+
+        // printf("Reduced Result:   %f \n", res);
 
         chess_separator_scheduler();
         // once calculated the result check if you fall between the threshold sigm_thresh
@@ -49,6 +54,7 @@ void last_fully_connected ( input_stream<float> * input, output_stream<float> * 
             // if you do: employ the LUT
             int index = int((res + sigm_thresh)*sigm_m_coeff) ;
             writeincr(output,sigm[index]);
+            // printf("Final Result:   %f \n", sigm[index]);
         }
         chess_separator_scheduler();
 

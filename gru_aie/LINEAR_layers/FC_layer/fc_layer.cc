@@ -9,11 +9,11 @@ void fully_connected ( input_stream<float> * input, output_stream<float> * outpu
                         const float (&bias)[output_dims_0]
                         
 ) {
-    alignas(32) aie::accum<accfloat, VECTOR_LANES> acc[output_dims_0/VECTOR_LANES];
-    alignas(32) aie::vector<float, VECTOR_LANES> result[output_dims_0/VECTOR_LANES];
-    alignas(32) float input_vector[H_VECTOR_SIZE];
-    alignas(32) aie::vector<float, VECTOR_LANES> * v_layer_parameters = (aie::vector<float, VECTOR_LANES>*) &layer_parameters;
-    alignas(32) aie::accum<accfloat, VECTOR_LANES> * a_bias = (aie::accum<accfloat, VECTOR_LANES>*) &bias;
+    aie::accum<accfloat, VECTOR_LANES> acc[output_dims_0/VECTOR_LANES];
+    aie::vector<float, VECTOR_LANES> result[output_dims_0/VECTOR_LANES];
+    float input_vector[H_VECTOR_SIZE];
+    aie::vector<float, VECTOR_LANES> * v_layer_parameters = (aie::vector<float, VECTOR_LANES>*) &layer_parameters;
+    aie::accum<accfloat, VECTOR_LANES> * a_bias = (aie::accum<accfloat, VECTOR_LANES>*) &bias;
 
     for (;;){
 
@@ -31,11 +31,17 @@ void fully_connected ( input_stream<float> * input, output_stream<float> * outpu
         }
 
         for (int i = 0; i < output_dims_0/VECTOR_LANES; i++) chess_loop_count(output_dims_0/VECTOR_LANES) // For 4 rows, mac column wise.
-            {  
+            {
+            // printf("rows %i \n", i);
             acc[i] = a_bias[i];
             for (int j = 0; j < H_VECTOR_SIZE; j++) chess_loop_count(H_VECTOR_SIZE)
                 {
-                acc[i] = aie::mac(acc[i], v_layer_parameters[j], input_vector[j]);
+                // printf("cols %i \n", j);
+                // aie::print(acc[i], true, "Accumulator status:  ");
+                // aie::print(v_layer_parameters[j], true, "MAC weights:  ");
+                // printf("with value:  %f \n", input_vector[j]);
+                acc[i] = aie::mac(acc[i], v_layer_parameters[i*H_VECTOR_SIZE + j], input_vector[j]);
+                // aie::print(acc[i], true, "Result:  ");
             }
         }
 
@@ -44,13 +50,14 @@ void fully_connected ( input_stream<float> * input, output_stream<float> * outpu
         for (int i = 0; i < output_dims_0/VECTOR_LANES; i++) chess_loop_count(output_dims_0/VECTOR_LANES)
             {
             result[i] = aie::max(float(0), acc[i].to_vector<float>(0));
+            // aie::print(result[i], true, "Result after applying Relu  ");
         }
 
         // output 
         chess_separator_scheduler();
         for (int i = 0; i < output_dims_0/VECTOR_LANES; i++) chess_loop_count(output_dims_0/VECTOR_LANES)
             {
-            writeincr(output, acc[i]); // Write the output
+            writeincr(output, result[i]); // Write the output
         }
         chess_separator_scheduler(output_dims_0);
     }

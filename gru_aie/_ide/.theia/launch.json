@@ -1,68 +1,68 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "gru_aie_x86_1",
-      "debugType": "x86simulator",
-      "type": "gdb",
-      "x86SimOptions": "${workspaceFolder}/gru_aie/build/x86sim/Work/options/x86sim.options",
-      "request": "launch",
-      "target": "${workspaceFolder}/gru_aie/build/x86sim/Work/pthread/sim.out",
-      "cwd": "${workspaceFolder}/gru_aie/build/x86sim",
-      "gdbpath": "${env:XILINX_VITIS}/bin/xgdb",
-      "valuesFormatting": "prettyPrinters",
-      "env": {
-        "LD_LIBRARY_PATH": "/tools/Xilinx/Vitis/2024.1/tps/lnx64/python-3.8.3/lib:/tools/Xilinx/Vitis/2024.1/aietools/tps/lnx64/gcc/lib64/:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs/Rhel/9:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs/Rhel:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o/Rhel/9:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o/Rhel:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o:/tools/Xilinx/Vitis/2024.1/tps/lnx64/python-3.8.3/lib:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs/Rhel/9:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs/Rhel:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o/Rhel/9:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o/Rhel:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o:/tools/Xilinx/Vitis/2024.1/tps/lnx64/python-3.8.3/lib:/tools/Xilinx/Vitis/2024.1/aietools/lib/lnx64.o:/tools/Xilinx/Vitis_HLS/2024.1/lib/lnx64.o/Rhel/9:/tools/Xilinx/Vitis_HLS/2024.1/lib/lnx64.o/Rhel:/tools/Xilinx/Vitis_HLS/2024.1/lib/lnx64.o:/tools/Xilinx/Vitis_HLS/2024.1/lib/lnx64.o:/opt/xilinx/xrt/lib",
-        "INPUTDIR": "../..",
-        "OUTPUTDIR": "./x86simulator_output",
-        "ASAN_OPTIONS": "detect_leaks=0",
-        "ASAN_SYMBOLIZER_PATH": "/tools/Xilinx/Vitis/2024.1/aietools/lnx64.o/tools/clang/bin/llvm-symbolizer",
-        "PACKAGEDIR": "./Work"
-      }
-    },
-    {
-      "type": "tcf-debug",
-      "request": "launch",
-      "name": "gru_aie_aiesim_1",
-      "debugType": "aiesimulator",
-      "autoAttachProcessChildren": false,
-      "target": {
-        "targetConnectionId": "XRTServer",
-        "peersIniPath": "../../../.wsdata/.peers.ini",
-        "context": "MemSock"
-      },
-      "aieSimulatorOptions": {
-        "enablePipelineView": true,
-        "packageDirectory": "./Work",
-        "inputDirectory": "../..",
-        "additionalArgs": "--simulation-cycle-timeout=120000",
-        "trace": {
-          "enableTrace": true,
-          "traceType": "onlineWdb",
-          "vcdFileName": "foo",
-          "generateXpe": false,
-          "traceModules": {
-            "io": true,
-            "dma": true,
-            "memory": true,
-            "core": true,
-            "shim": true,
-            "streamSwitch": true
-          },
-          "columnSelectionForTrace": [],
-          "rowSelectionForTrace": [],
-          "timeWindowForTrace": {
-            "start": "",
-            "end": ""
-          }
-        },
-        "profile": {
-          "enableProfiling": false,
-          "profileAllCores": true,
-          "cores": ""
-        }
-      },
-      "internalConsoleOptions": "openOnSessionStart"
-    }
-  ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "gru_aie_x86_1",
+			"debugType": "x86simulator",
+			"type": "gdb",
+			"x86SimOptions": "${workspaceFolder}/gru_aie/build/x86sim/Work/options/x86sim.options",
+			"request": "launch",
+			"target": "${workspaceFolder}/gru_aie/build/x86sim/Work/pthread/sim.out",
+			"cwd": "${workspaceFolder}/gru_aie/build/x86sim",
+			"gdbpath": "${env:XILINX_VITIS}/bin/xgdb",
+			"valuesFormatting": "prettyPrinters",
+			"env": {
+				"LD_LIBRARY_PATH": "/tools/Xilinx/Vitis/2024.1/tps/lnx64/python-3.8.3/lib:/tools/Xilinx/Vitis/2024.1/aietools/tps/lnx64/gcc/lib64/:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs/Rhel/9:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs/Rhel:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o/Rhel/9:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o/Rhel:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o:/tools/Xilinx/Vitis/2024.1/tps/lnx64/python-3.8.3/lib:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs/Rhel/9:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs/Rhel:/tools/Xilinx/Vitis/2024.1/tps/lnx64/cmake-3.24.2/libs:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o/Rhel/9:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o/Rhel:/tools/Xilinx/Vitis/2024.1/lib/lnx64.o:/tools/Xilinx/Vitis/2024.1/tps/lnx64/python-3.8.3/lib:/tools/Xilinx/Vitis/2024.1/aietools/lib/lnx64.o:/tools/Xilinx/Vitis_HLS/2024.1/lib/lnx64.o/Rhel/9:/tools/Xilinx/Vitis_HLS/2024.1/lib/lnx64.o/Rhel:/tools/Xilinx/Vitis_HLS/2024.1/lib/lnx64.o:/tools/Xilinx/Vitis_HLS/2024.1/lib/lnx64.o:/opt/xilinx/xrt/lib",
+				"INPUTDIR": "../..",
+				"OUTPUTDIR": "./x86simulator_output",
+				"ASAN_OPTIONS": "detect_leaks=0",
+				"ASAN_SYMBOLIZER_PATH": "/tools/Xilinx/Vitis/2024.1/aietools/lnx64.o/tools/clang/bin/llvm-symbolizer",
+				"PACKAGEDIR": "./Work"
+			}
+		},
+		{
+			"type": "tcf-debug",
+			"request": "launch",
+			"name": "gru_aie_aiesim_1",
+			"debugType": "aiesimulator",
+			"autoAttachProcessChildren": false,
+			"target": {
+				"targetConnectionId": "XRTServer",
+				"peersIniPath": "../../../.wsdata/.peers.ini",
+				"context": "MemSock"
+			},
+			"aieSimulatorOptions": {
+				"enablePipelineView": true,
+				"packageDirectory": "./Work",
+				"inputDirectory": "../..",
+				"additionalArgs": "--simulation-cycle-timeout=80000",
+				"trace": {
+					"enableTrace": true,
+					"traceType": "onlineWdb",
+					"vcdFileName": "foo",
+					"generateXpe": false,
+					"traceModules": {
+						"io": true,
+						"dma": true,
+						"memory": true,
+						"core": true,
+						"shim": true,
+						"streamSwitch": true
+					},
+					"columnSelectionForTrace": [],
+					"rowSelectionForTrace": [],
+					"timeWindowForTrace": {
+						"start": "",
+						"end": ""
+					}
+				},
+				"profile": {
+					"enableProfiling": false,
+					"profileAllCores": true,
+					"cores": ""
+				}
+			},
+			"internalConsoleOptions": "openOnSessionStart"
+		}
+	]
 }

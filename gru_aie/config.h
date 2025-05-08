@@ -23,7 +23,10 @@ constexpr int output_dims_0 = 64;
 // As stated above the NUMBER OF KERNELS that will be instatiated is:
 constexpr int NKERNELS = H_VECTOR_SIZE/DIST_COEFF;
 
-// 
-constexpr int LUT_SIZE = 4096; // This is half a Tiles Memory (16KB)
+//
+// This value have to do with the threshold of the input.
+static constexpr float sigm_thresh = 6.0; 
+static constexpr float tanh_thresh = 4.0;
+constexpr float lut_size = 7750.0; // This is half a Tiles Memory (16KB)
 
 #endif
