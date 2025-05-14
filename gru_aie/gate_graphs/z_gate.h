@@ -4,7 +4,8 @@
 #include <adf.h>
 #include "../mat_vec_mul/mat_input_vec_mul.h"
 #include "../mat_vec_mul/mat_hidden_vec_mul.h"
-#include "../act_reduce/sigmoid_reduce.h"
+// #include "../act_reduce/sigmoid_reduce.h"
+#include "../act_compute/sigmoid_compute.h"
 #include "../config.h"
 
 class z_gate: public adf::graph {
@@ -52,8 +53,8 @@ public:
     adf::connect<adf::parameter>(hidden_init, adf::async(Uz_h.in[2]));
 
     // Reduce_add and apply sigmoid LUT
-    z_sigm_reduce = adf::kernel::create(sigmoid_reduce);
-    adf::source(z_sigm_reduce) = "act_reduce/sigmoid_reduce.cc";
+    z_sigm_reduce = adf::kernel::create(sigmoid_compute);
+    adf::source(z_sigm_reduce) = "act_compute/sigmoid_compute.cc";
     adf::runtime<ratio>(z_sigm_reduce) = 1;
 
     adf::connect<adf::stream>(Wz_x.out[0], z_sigm_reduce.in[0]);

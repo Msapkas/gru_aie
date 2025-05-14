@@ -4,7 +4,8 @@
 #include <adf.h>
 #include "../mat_vec_mul/mat_input_vec_mul.h"
 #include "../mat_vec_mul/chsg_mat_r_mul_h.h"
-#include "../act_reduce/tanh_reduce.h"
+// #include "../act_reduce/tanh_reduce.h"
+#include "../act_compute/sigmoid_compute.h"
 #include "../config.h"
 
 class candidate_hidden_gate: public adf::graph {
@@ -54,8 +55,9 @@ public:
     adf::connect<adf::parameter>(hidden_init, adf::async(Uh_h.in[3]));
 
     // Reduce_add and apply sigmoid LUT
-    tanh_reduce_kernel = adf::kernel::create(tanh_reduce);
-    adf::source(tanh_reduce_kernel) = "act_reduce/tanh_reduce.cc";
+    // tanh_reduce_kernel = adf::kernel::create(tanh_reduce);
+    tanh_reduce_kernel = adf::kernel::create(sigmoid_compute);
+    adf::source(tanh_reduce_kernel) = "act_compute/sigmoid_compute.cc";
     adf::runtime<ratio>(tanh_reduce_kernel) = 1;
 
     adf::connect<>(Wh_x.out[0], tanh_reduce_kernel.in[0]);

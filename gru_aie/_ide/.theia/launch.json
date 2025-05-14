@@ -57,7 +57,7 @@
 					}
 				},
 				"profile": {
-					"enableProfiling": false,
+					"enableProfiling": true,
 					"profileAllCores": true,
 					"cores": ""
 				}
