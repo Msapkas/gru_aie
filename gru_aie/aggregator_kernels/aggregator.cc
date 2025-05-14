@@ -30,11 +30,12 @@ void aggregator(  input_pktstream * in, output_stream<float> * out )
             //
             aggregated_vector[idx] = *dest;
         }
-        chess_separator_scheduler(); // important to have a separator inbetween
+        chess_separator_scheduler();
         for (int i = 0; i < H_VECTOR_SIZE; i++) chess_loop_count(H_VECTOR_SIZE)
         {
             writeincr(out, aggregated_vector[i]);
         }
-        chess_separator_scheduler(H_VECTOR_SIZE);
+        // chess_separator_scheduler(H_VECTOR_SIZE);
+        chess_separator_scheduler(2);
     }
 }

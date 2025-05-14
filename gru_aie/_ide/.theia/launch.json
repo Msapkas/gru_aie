@@ -35,7 +35,7 @@
 				"enablePipelineView": true,
 				"packageDirectory": "./Work",
 				"inputDirectory": "../..",
-				"additionalArgs": "--simulation-cycle-timeout=80000",
+				"additionalArgs": "--simulation-cycle-timeout=12000",
 				"trace": {
 					"enableTrace": true,
 					"traceType": "onlineWdb",

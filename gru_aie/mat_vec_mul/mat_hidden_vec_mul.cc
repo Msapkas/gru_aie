@@ -21,10 +21,10 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
         {
         hidden[i] = v_hidden[i];
     }
-    chess_separator_scheduler(H_VECTOR_SIZE);
+    chess_separator_scheduler();
+    chess_separator_scheduler(2);
     for (;;){
         // Compute
-        chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
             {
             acc = aie::zeros<accfloat, VECTOR_LANES>();
@@ -37,11 +37,15 @@ void mat_hidden_vec_mul(input_stream<float> * __restrict in,
             }
             writeincr(out, aie::reduce_add( acc.to_vector<float>(0)) );
         }
-        chess_separator_scheduler(VECTOR_LANES);
+        // chess_separator_scheduler(VECTOR_LANES);
+        chess_separator_scheduler();
+        chess_separator_scheduler(2);
         for (int i = 0; i < H_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(H_VECTOR_SIZE/VECTOR_LANES)
             {
             hidden[i] = readincr_v<4>(in);
         }
-        chess_separator_scheduler(H_VECTOR_SIZE);
+        chess_separator_scheduler();
+        chess_separator_scheduler(2);
+        // chess_separator_scheduler(H_VECTOR_SIZE);
     }
 }

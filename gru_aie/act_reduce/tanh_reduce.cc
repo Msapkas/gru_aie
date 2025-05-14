@@ -21,13 +21,13 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
     static const unsigned int ID = getPacketid(out,0); //for output pktstream
 
     for (;;){
-        chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
         {
             res = bias[i];
             res += readincr(x_in);
             res += readincr(h_in);
-
+            chess_separator_scheduler();
+            chess_separator_scheduler(2);
             if (res <= - tanh_thresh){
                 writeHeader(out,pktType,ID); //Generate header for output
                 writeincr(out, identifier + i);
@@ -43,6 +43,5 @@ void tanh_reduce(   input_stream<float> * __restrict x_in,
                 writeincr(out,tan_h[index],true);
             }
         }
-        chess_separator_scheduler(3);
     }
 }

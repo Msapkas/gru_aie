@@ -25,14 +25,14 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
 
     // infinite loop
     for (;;){
-        chess_separator_scheduler();
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF)
             {   
             // add the bias and reduce the vectors
             res = bias[i];
             res += readincr(x_in);
             res += readincr(h_in);
-
+            chess_separator_scheduler();
+            chess_separator_scheduler(2);
             // once calculated the result check if you fall between the threshold sigm_thresh
             if (res <= - sigm_thresh){
                 writeHeader(out,pktType,ID);    // Generate header for output
@@ -50,6 +50,5 @@ void sigmoid_reduce(input_stream<float> * __restrict x_in,
                 writeincr(out,sigm[index],true);
             }
         }
-        chess_separator_scheduler(3);
     }
 }

@@ -17,13 +17,15 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
     aie::vector<float, VECTOR_LANES> * v_weights = (aie::vector<float, VECTOR_LANES>*) &weights;
 
     for (;;){
-        chess_separator_scheduler(); // Separators are crucial for the correct scheduling of the kernel
+        // chess_separator_scheduler(); // Separators are crucial for the correct scheduling of the kernel
         // Read the input
         for (int i = 0; i < X_VECTOR_SIZE/VECTOR_LANES; i++) chess_loop_count(X_VECTOR_SIZE/VECTOR_LANES)
             {
             x_input[i] = readincr_v<4>(in);
         }
-        chess_separator_scheduler(X_VECTOR_SIZE);
+        // chess_separator_scheduler(X_VECTOR_SIZE);
+        chess_separator_scheduler();
+        chess_separator_scheduler(2);
         for (int i = 0; i < DIST_COEFF; i++) chess_loop_count(DIST_COEFF) // For each row
             {   
             acc = aie::zeros<accfloat, VECTOR_LANES>();
@@ -36,7 +38,9 @@ void mat_input_vec_mul( input_stream<float> * __restrict in,
             }
             writeincr(out, aie::reduce_add( acc.to_vector<float>(0)) ); // Write the output, which is a VECTOR LANE length vector
         }
-        chess_separator_scheduler(VECTOR_LANES); 
+        // chess_separator_scheduler(VECTOR_LANES); 
+        chess_separator_scheduler();
+        chess_separator_scheduler(2);
     }
 }
 
