@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below:"
+title: "Gated Recurrent Unit Implementation on the AMD Versal AI Engine"
+version: 1.0.0
+date-released: 2025-05-20
+authors:
+  - family-names: Sapkas
+    given-names: Michail
+    affiliation: INFN Department of Physics and Astronomy Padova
+    orcid: https://orcid.org/0009-0000-2290-9520
+abstract:
+  This repository contains the first known implementation of a Gated Recurrent Unit (RNN)
+  running on the Versal AI Engine, demonstrating novel usage of Tiled array.
+  The code is intended for researchers and developers exploring AI on emerging platforms.
+repository-code: https://github.com/Msapkas/gru_aie
+license: MIT
+keywords:
+  - rnn
+  - machine learning
+  - hardware acceleration
+  - michail sapkas
+  - neural networks
+  - ai engine
+  - versal
+  - gated recurrent unit
